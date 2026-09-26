@@ -1,0 +1,92 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  images: { src: ImageMetadata; alt: string }[];
+}
+const { images } = Astro.props;
+---
+
+<div class="gallery">
+  <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+    {
+      images.map((img, i) => (
+        <li>
+          <button
+            type="button"
+            data-open={i}
+            class="group block w-full overflow-hidden rounded-md border border-line bg-surface transition hover:border-accent"
+            aria-label={`View larger: ${img.alt}`}
+          >
+            <Image src={img.src} alt={img.alt} width={480} class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <dialog class="m-auto max-h-[92dvh] w-[min(92vw,1100px)] rounded-md border border-line bg-surface p-0 text-ink backdrop:bg-black/70">
+    {
+      images.map((img, i) => (
+        <figure data-slide={i} hidden>
+          <Image src={img.src} alt={img.alt} width={1600} class="max-h-[80dvh] w-full object-contain" />
+          <figcaption class="border-t border-line px-4 py-3 text-sm text-muted">{img.alt}</figcaption>
+        </figure>
+      ))
+    }
+    <div class="absolute right-2 top-2 flex gap-2">
+      {images.length > 1 && (
+        <>
+          <button type="button" data-step="-1" class="lb-btn" aria-label="Previous image">←</button>
+          <button type="button" data-step="1" class="lb-btn" aria-label="Next image">→</button>
+        </>
+      )}
+      <button type="button" data-close class="lb-btn" aria-label="Close">✕</button>
+    </div>
+  </dialog>
+</div>
+
+<style>
+  .lb-btn {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-family: var(--font-mono);
+  }
+  .lb-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.gallery').forEach((g) => {
+    const dialog = g.querySelector('dialog')!;
+    const slides = [...g.querySelectorAll<HTMLElement>('[data-slide]')];
+    let current = 0;
+    const show = (i: number) => {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, j) => (s.hidden = j !== current));
+    };
+    g.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((b) =>
+      b.addEventListener('click', () => {
+        show(Number(b.dataset.open));
+        dialog.showModal();
+      }),
+    );
+    g.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) =>
+      b.addEventListener('click', () => show(current + Number(b.dataset.step))),
+    );
+    g.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(current + 1);
+      if (e.key === 'ArrowLeft') show(current - 1);
+    });
+  });
+</script>

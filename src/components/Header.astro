@@ -1,0 +1,49 @@
+---
+import { site } from '../site.config';
+import { courses } from '../data/courses';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const links = [
+  { href: '/', label: 'Home' },
+  ...courses.map((c) => ({ href: `/${c.slug}`, label: c.code })),
+  { href: '/#contact', label: 'Contact' },
+];
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : !href.includes('#') && path.startsWith(href);
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-ink"
+    >Skip to content</a
+  >
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="/" class="group flex items-center gap-3">
+      <span
+        class="grid size-10 place-items-center rounded-md border-2 border-accent font-mono text-sm font-bold text-accent transition group-hover:rotate-6"
+        aria-hidden="true">{site.initials}</span
+      >
+      <span class="sr-only font-semibold tracking-tight sm:not-sr-only">{site.name}</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="flex items-center gap-1 sm:gap-2">
+        {
+          links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                aria-current={isActive(l.href) ? 'page' : undefined}
+                class="rounded-md px-2.5 py-2 font-mono text-xs uppercase tracking-widest text-muted transition hover:text-accent aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 sm:px-3"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="ml-1"><ThemeToggle /></li>
+      </ul>
+    </nav>
+  </div>
+</header>

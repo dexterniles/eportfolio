@@ -1,0 +1,50 @@
+---
+// Line-art icon per section, used when a project has no cover image.
+interface Props {
+  section: string;
+  class?: string;
+}
+const { section, class: className = '' } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+  {
+    section === 'models' && (
+      <>
+        <path d="M60 14 88 28v28L60 70 32 56V28z" />
+        <path d="M32 28l28 14 28-14M60 42v28" />
+        <circle cx="60" cy="42" r="6" stroke-dasharray="3 3" />
+      </>
+    )
+  }
+  {
+    section === 'assemblies' && (
+      <>
+        <circle cx="46" cy="40" r="16" />
+        <circle cx="46" cy="40" r="5" />
+        <circle cx="78" cy="40" r="11" />
+        <circle cx="78" cy="40" r="3.5" />
+        <path d="M20 40h8M96 40h8" stroke-dasharray="4 3" />
+      </>
+    )
+  }
+  {
+    section === 'drawings' && (
+      <>
+        <rect x="22" y="14" width="76" height="52" />
+        <rect x="70" y="52" width="28" height="14" />
+        <rect x="34" y="24" width="24" height="20" />
+        <path d="M34 52h24M34 49v6M58 49v6M64 24v20M61 24h6M61 44h6" />
+      </>
+    )
+  }
+  {
+    section !== 'models' && section !== 'assemblies' && section !== 'drawings' && (
+      <>
+        <path d="M38 12h44v56H38z" />
+        <path d="M46 24h28M46 32h28M46 40h20M46 48h24" />
+        <path d="M30 12v56" stroke-dasharray="2 4" />
+      </>
+    )
+  }
+</svg>

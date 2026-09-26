@@ -1,43 +1,15 @@
-# Astro Starter Kit: Minimal
+# Dexter Niles · e-Portfolio
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Personal engineering e-Portfolio for my coursework at Bristol Community College (Engineering Transfer Program, Mechanical Engineering focus). Built with [Astro](https://astro.build), styled with Tailwind CSS, with interactive 3D models powered by [`<model-viewer>`](https://modelviewer.dev). Hosted on Vercel.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Local preview at http://localhost:4321 |
+| `npm run build` | Production build into `dist/` |
+| `npm run stl2glb -- in.stl public/models/out.glb [#color] [--z-up]` | Convert a CAD STL export to a web 3D model |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Adding work
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+See [HOW-TO-ADD-WORK.md](HOW-TO-ADD-WORK.md).

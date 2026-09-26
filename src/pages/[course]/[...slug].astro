@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import Gallery from '../../components/Gallery.astro';
+import { courses } from '../../data/courses';
+import {
+  formatDate,
+  getCourse,
+  getCourseProjects,
+  projectHref,
+  projectSlug,
+  sectionTitle,
+  type Project,
+} from '../../lib/projects';
+
+export async function getStaticPaths() {
+  const perCourse = await Promise.all(
+    courses.map(async (course) => {
+      const list = await getCourseProjects(course.slug);
+      return list.map((project, i) => ({
+        params: { course: course.slug, slug: projectSlug(project) },
+        props: { project, index: i, total: list.length, prev: list[i - 1], next: list[i + 1] },
+      }));
+    }),
+  );
+  return perCourse.flat();
+}
+
+interface Props {
+  project: Project;
+  index: number;
+  total: number;
+  prev?: Project;
+  next?: Project;
+}
+const { project, index, total, prev, next } = Astro.props;
+const d = project.data;
+const course = getCourse(d.course)!;
+const section = sectionTitle(d.course, d.section);
+const { Content } = await render(project);
+---
+
+<Base title={d.title} description={d.summary} sheet={`${course.code} · ${index + 1} of ${total}`}>
+  <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">
+    <a href="/" class="hover:text-accent">Home</a>
+    <span aria-hidden="true"> / </span>
+    <a href={`/${course.slug}`} class="hover:text-accent">{course.code}</a>
+    <span aria-hidden="true"> / </span>
+    <a href={`/${course.slug}#${d.section}`} class="hover:text-accent">{section}</a>
+  </nav>
+
+  <header class="py-8">
+    {
+      d.placeholder && (
+        <p class="mb-4 inline-block rounded bg-highlight px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-widest text-paper">
+          Placeholder: replace with real work
+        </p>
+      )
+    }
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">{d.title}</h1>
+    <p class="mt-4 max-w-2xl text-lg text-muted">{d.summary}</p>
+    <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+      <div><dt class="label">Section</dt><dd class="mt-1 font-mono text-sm">{section}</dd></div>
+      <div><dt class="label">Date</dt><dd class="mt-1 font-mono text-sm">{formatDate(d.date)}</dd></div>
+      <div><dt class="label">Software</dt><dd class="mt-1 font-mono text-sm">{d.software ?? course.software}</dd></div>
+    </dl>
+  </header>
+
+  {
+    d.model ? (
+      <ModelViewer src={d.model} alt={d.coverAlt ?? `3D model of ${d.title}`} />
+    ) : (
+      d.cover && (
+        <div class="crop-marks">
+          <Image src={d.cover} alt={d.coverAlt ?? ''} width={1400} class="w-full rounded-md border border-line" />
+        </div>
+      )
+    )
+  }
+
+  <article class="prose-blueprint mt-12 max-w-3xl">
+    <Content />
+  </article>
+
+  {
+    d.pdf && (
+      <section aria-labelledby="drawing-title" class="mt-14">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="drawing-title" class="text-2xl font-bold tracking-tight">Drawing</h2>
+          <div class="flex gap-3 font-mono text-sm">
+            <a href={d.pdf} target="_blank" rel="noopener" class="text-accent hover:underline">Open PDF ↗</a>
+            <a href={d.pdf} download class="text-accent hover:underline">Download ↓</a>
+          </div>
+        </div>
+        <object data={d.pdf} type="application/pdf" aria-label={`${d.title} (PDF)`} title={`${d.title} (PDF)`} class="mt-4 h-[75vh] w-full rounded-md border border-line bg-surface">
+          <p class="p-6 text-muted">
+            Your browser can't show the PDF here. <a href={d.pdf} class="text-accent underline">Open the drawing</a> instead.
+          </p>
+        </object>
+      </section>
+    )
+  }
+
+  {
+    d.gallery.length > 0 && (
+      <section aria-labelledby="gallery-title" class="mt-14">
+        <h2 id="gallery-title" class="mb-4 text-2xl font-bold tracking-tight">Gallery</h2>
+        <Gallery images={d.gallery} />
+      </section>
+    )
+  }
+
+  <nav aria-label="More projects" class="mt-16 grid gap-4 border-t border-line pt-8 sm:grid-cols-2">
+    {
+      prev ? (
+        <a href={projectHref(prev)} class="group rounded-md border border-line bg-surface p-4 transition hover:border-accent">
+          <span class="label">← Previous</span>
+          <span class="mt-1 block font-semibold group-hover:text-accent">{prev.data.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      next ? (
+        <a href={projectHref(next)} class="group rounded-md border border-line bg-surface p-4 text-right transition hover:border-accent">
+          <span class="label">Next →</span>
+          <span class="mt-1 block font-semibold group-hover:text-accent">{next.data.title}</span>
+        </a>
+      ) : (
+        <a href={`/${course.slug}`} class="group rounded-md border border-line bg-surface p-4 text-right transition hover:border-accent">
+          <span class="label">Done</span>
+          <span class="mt-1 block font-semibold group-hover:text-accent">Back to {course.code}</span>
+        </a>
+      )
+    }
+  </nav>
+</Base>

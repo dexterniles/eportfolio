@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { courses, type Course } from '../../data/courses';
+import { getCourseProjects } from '../../lib/projects';
+
+export function getStaticPaths() {
+  return courses.map((course) => ({ params: { course: course.slug }, props: { course } }));
+}
+
+const { course } = Astro.props as { course: Course };
+const projects = await getCourseProjects(course.slug);
+const zones = 'ABCDEFGH';
+---
+
+<Base title={course.code} description={course.summary} sheet={course.code}>
+  <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">
+    <a href="/" class="hover:text-accent">Home</a>
+    <span aria-hidden="true"> / </span>
+    <span aria-current="page">{course.code}</span>
+  </nav>
+
+  <header class="py-8">
+    <p class="label">Course · {course.software}</p>
+    <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-6xl">
+      <span class="font-mono text-accent">{course.code}</span>
+      <span class="mt-1 block text-2xl font-semibold text-ink sm:text-3xl">{course.title}</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg text-muted">{course.summary}</p>
+
+    <ul class="mt-8 flex flex-wrap gap-2" aria-label="Jump to section">
+      {
+        course.sections.map((s, i) => (
+          <li>
+            <a
+              href={`#${s.slug}`}
+              class="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 font-mono text-xs uppercase tracking-widest transition hover:border-accent hover:text-accent"
+            >
+              <span class="text-accent">{zones[i]}</span> {s.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </header>
+
+  {
+    course.sections.map((s, i) => {
+      const items = projects.filter((p) => p.data.section === s.slug);
+      return (
+        <section id={s.slug} aria-labelledby={`${s.slug}-title`} class="scroll-mt-20 border-t border-line py-12">
+          <div class="flex items-baseline gap-4">
+            <span class="grid size-10 shrink-0 place-items-center rounded-full border-2 border-accent font-mono font-bold text-accent" aria-hidden="true">
+              {zones[i]}
+            </span>
+            <div>
+              <h2 id={`${s.slug}-title`} class="text-2xl font-bold tracking-tight">{s.title}</h2>
+              <p class="mt-1 text-muted">{s.blurb}</p>
+            </div>
+          </div>
+          {items.length > 0 ? (
+            <ul class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((p) => (
+                <li>
+                  <ProjectCard project={p} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="mt-8 rounded-md border-2 border-dashed border-line p-8 text-center font-mono text-sm text-muted">
+              Nothing here yet. Work in progress.
+            </p>
+          )}
+        </section>
+      );
+    })
+  }
+</Base>

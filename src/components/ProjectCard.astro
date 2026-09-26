@@ -1,0 +1,55 @@
+---
+import { Image } from 'astro:assets';
+import SectionIcon from './SectionIcon.astro';
+import { formatDate, projectHref, type Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+const d = project.data;
+const badges = [d.model && '3D', d.pdf && 'PDF', d.gallery.length > 0 && `${d.gallery.length} img`].filter(Boolean);
+---
+
+<a
+  href={projectHref(project)}
+  class="group flex h-full flex-col overflow-hidden rounded-md border-2 border-line bg-surface transition hover:-translate-y-1 hover:border-accent hover:shadow-[6px_6px_0_var(--accent)]"
+>
+  <div class="relative aspect-[3/2] overflow-hidden border-b border-line bg-paper">
+    {
+      d.cover ? (
+        <Image
+          src={d.cover}
+          alt={d.coverAlt ?? ''}
+          width={640}
+          class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div class="grid h-full place-items-center text-accent/70">
+          <SectionIcon section={d.section} class="w-1/2 transition duration-500 group-hover:scale-110" />
+        </div>
+      )
+    }
+    {
+      d.placeholder && (
+        <span class="absolute left-3 top-3 rounded bg-highlight px-2 py-0.5 font-mono text-[0.65rem] font-bold uppercase tracking-widest text-paper">
+          Placeholder
+        </span>
+      )
+    }
+  </div>
+  <div class="flex flex-1 flex-col p-5">
+    <p class="label">{formatDate(d.date)}</p>
+    <h3 class="mt-1.5 text-lg font-semibold leading-snug group-hover:text-accent">{d.title}</h3>
+    <p class="mt-2 line-clamp-3 text-sm text-muted">{d.summary}</p>
+    {
+      badges.length > 0 && (
+        <ul class="mt-auto flex flex-wrap gap-2 pt-4" aria-label="Includes">
+          {badges.map((b) => (
+            <li class="rounded border border-accent/50 px-2 py-0.5 font-mono text-[0.7rem] text-accent">{b}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</a>

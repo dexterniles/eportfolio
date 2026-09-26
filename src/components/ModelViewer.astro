@@ -1,0 +1,143 @@
+---
+// Interactive 3D viewer for .glb files in /public. Loads model-viewer only on pages that use it.
+interface Props {
+  src: string;
+  alt: string;
+}
+const { src, alt } = Astro.props;
+---
+
+<figure class="model-frame crop-marks">
+  <div data-stage class="relative overflow-hidden rounded-md border border-line bg-surface/60">
+    <model-viewer
+      src={src}
+      alt={alt}
+      camera-controls
+      auto-rotate
+      auto-rotate-delay="2000"
+      rotation-per-second="18deg"
+      interaction-prompt="auto"
+      shadow-intensity="0.9"
+      shadow-softness="0.8"
+      exposure="1.05"
+      tone-mapping="neutral"
+      touch-action="pan-y"
+    >
+      <div slot="progress-bar" class="absolute inset-x-0 top-0 h-0.5">
+        <div data-progress class="h-full w-0 bg-accent transition-[width]"></div>
+      </div>
+    </model-viewer>
+
+    <div class="absolute right-3 top-3 flex gap-2">
+      <button type="button" data-reset class="mv-btn" aria-label="Reset view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+      </button>
+      <button type="button" data-spin class="mv-btn" aria-label="Pause rotation" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4" /><path d="M21 3v6h-6" /></svg>
+      </button>
+      <button type="button" data-full class="mv-btn" aria-label="View fullscreen" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+      </button>
+    </div>
+  </div>
+  <figcaption class="mt-3 flex flex-wrap justify-between gap-2 font-mono text-xs text-muted">
+    <span>Drag to rotate · scroll or pinch to zoom · right-drag to pan</span>
+    <a href={src} download class="text-accent hover:underline">Download .glb</a>
+  </figcaption>
+</figure>
+
+<style>
+  model-viewer {
+    /* Block before the script upgrades it, so the height reserves space and nothing jumps. */
+    display: block;
+    width: 100%;
+    height: clamp(320px, 62vh, 600px);
+    background: transparent;
+    --poster-color: transparent;
+    --progress-bar-color: transparent;
+  }
+  [data-stage]:fullscreen {
+    background: var(--paper);
+    border-radius: 0;
+  }
+  [data-stage]:fullscreen model-viewer {
+    height: 100dvh;
+  }
+  .mv-btn {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-muted);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .mv-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .mv-btn[aria-pressed='false'] {
+    color: var(--highlight);
+  }
+  .mv-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+</style>
+
+<script>
+  // Load the 3D engine once the page has finished loading and gone idle, so text and
+  // images appear first and the page stays responsive while it starts up.
+  const loadViewer = () => import('@google/model-viewer');
+  const whenIdle = (fn: () => void) =>
+    'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 300);
+  if (document.readyState === 'complete') whenIdle(loadViewer);
+  else addEventListener('load', () => whenIdle(loadViewer), { once: true });
+
+  document.querySelectorAll<HTMLElement>('.model-frame').forEach((frame) => {
+    const stage = frame.querySelector<HTMLElement>('[data-stage]')!;
+    const mv = frame.querySelector('model-viewer') as any;
+    const bar = frame.querySelector<HTMLElement>('[data-progress]')!;
+    const spin = frame.querySelector<HTMLButtonElement>('[data-spin]')!;
+    const full = frame.querySelector<HTMLButtonElement>('[data-full]')!;
+
+    mv.addEventListener('progress', (e: any) => {
+      const p = e.detail.totalProgress;
+      bar.style.width = `${p * 100}%`;
+      bar.parentElement!.style.opacity = p >= 1 ? '0' : '1';
+    });
+
+    frame.querySelector('[data-reset]')!.addEventListener('click', async () => {
+      await customElements.whenDefined('model-viewer');
+      mv.cameraOrbit = 'auto auto auto';
+      mv.cameraTarget = 'auto auto auto';
+      mv.fieldOfView = 'auto';
+      mv.resetTurntableRotation?.();
+    });
+
+    // Toggle the attribute (not the property) so this works before the viewer script has loaded.
+    spin.addEventListener('click', () => {
+      const on = !mv.hasAttribute('auto-rotate');
+      mv.toggleAttribute('auto-rotate', on);
+      spin.setAttribute('aria-pressed', String(on));
+      spin.setAttribute('aria-label', on ? 'Pause rotation' : 'Resume rotation');
+    });
+
+    // Respect reduced-motion: start paused.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) spin.click();
+
+    // Element fullscreen isn't available on iPhone, so only show the button where it works.
+    if (document.fullscreenEnabled) {
+      full.hidden = false;
+      full.addEventListener('click', () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else stage.requestFullscreen();
+      });
+      document.addEventListener('fullscreenchange', () => {
+        full.setAttribute('aria-label', document.fullscreenElement ? 'Exit fullscreen' : 'View fullscreen');
+      });
+    }
+  });
+</script>
