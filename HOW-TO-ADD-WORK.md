@@ -3,10 +3,13 @@
 Each project is one Markdown file in `src/content/projects/<course>/<section>/`.
 The file name becomes the URL: `src/content/projects/cad111/models/gear.md` → `/cad111/models/gear`.
 
-## 1. Copy a placeholder
+## 1. Copy the template
 
-The easiest start is to open a placeholder in the same section, save a copy under a new name, and edit it.
-When you've replaced a placeholder with real work, delete the `placeholder: true` line (or the whole placeholder file).
+Copy [`templates/project.md`](templates/project.md) into the right folder, for example
+`src/content/projects/cad111/models/spur-gear.md` (create the folder if it doesn't exist yet), then fill it in.
+It includes suggested headings for each section.
+
+After adding a new file or folder, restart the dev server (`npx astro dev stop`, then `npm run dev`) so the page shows up.
 
 ## 2. Fill in the front matter
 
