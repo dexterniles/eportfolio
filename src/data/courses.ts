@@ -3,7 +3,7 @@ export const courses = [
   {
     slug: 'cad111',
     code: 'CAD111',
-    title: 'Computer-Aided Design',
+    title: 'Mechanical Design w/ SolidWorks',
     software: 'SolidWorks',
     summary: 'Parametric part modeling, assemblies, and engineering drawings in SolidWorks.',
     sections: [
