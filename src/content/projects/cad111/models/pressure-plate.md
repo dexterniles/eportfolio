@@ -7,7 +7,7 @@ summary: A round pressure plate with six hollow bosses, modeled in SolidWorks.
 model: /models/pressure-plate.glb
 cover: ./images/pressure-plate.png
 coverAlt: 3D model of a circular pressure plate with six hollow cylindrical bosses arranged in a ring
-order: 1
+order: 2
 ---
 
 ## Specs
