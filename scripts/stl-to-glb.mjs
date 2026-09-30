@@ -44,23 +44,60 @@ if (zUp) {
   }
 }
 
-const positions = [];
-const normals = [];
-const indices = [];
+// Face normals (area-weighted), skipping degenerate slivers.
+const faces = []; // { v: [x,y,z]×3, n: unit normal, a: area weight }
 for (let i = 0; i < tris.length; i += 9) {
   const [ax, ay, az, bx, by, bz, cx, cy, cz] = tris.slice(i, i + 9);
   const ux = bx - ax, uy = by - ay, uz = bz - az;
   const vx = cx - ax, vy = cy - ay, vz = cz - az;
-  let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-  const len = Math.hypot(nx, ny, nz) || 1;
-  nx /= len; ny /= len; nz /= len;
-  const base = positions.length / 3;
-  positions.push(ax, ay, az, bx, by, bz, cx, cy, cz);
-  normals.push(nx, ny, nz, nx, ny, nz, nx, ny, nz);
-  indices.push(base, base + 1, base + 2);
+  const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+  const len = Math.hypot(nx, ny, nz);
+  if (len < 1e-12) continue;
+  faces.push({ v: [[ax, ay, az], [bx, by, bz], [cx, cy, cz]], n: [nx / len, ny / len, nz / len], a: len });
+}
+
+// Smooth shading: each corner averages the normals of neighboring faces that meet it at less
+// than CREASE_DEG, so curved surfaces (holes, fillets) look smooth and sharp edges stay crisp.
+const CREASE_DEG = 30;
+const cosCrease = Math.cos((CREASE_DEG * Math.PI) / 180);
+const posKey = (p) => p.map((c) => Math.round(c * 1e4)).join(',');
+const facesAt = new Map();
+faces.forEach((f, fi) => f.v.forEach((p) => {
+  const k = posKey(p);
+  if (!facesAt.has(k)) facesAt.set(k, []);
+  facesAt.get(k).push(fi);
+}));
+
+// Vertices that end up with the same position and normal are shared, which keeps the file small.
+const positions = [];
+const normals = [];
+const indices = [];
+const vertexIds = new Map();
+for (const f of faces) {
+  for (const p of f.v) {
+    const k = posKey(p);
+    let sx = 0, sy = 0, sz = 0;
+    for (const gi of facesAt.get(k)) {
+      const g = faces[gi];
+      if (f.n[0] * g.n[0] + f.n[1] * g.n[1] + f.n[2] * g.n[2] >= cosCrease) {
+        sx += g.n[0] * g.a; sy += g.n[1] * g.a; sz += g.n[2] * g.a;
+      }
+    }
+    const l = Math.hypot(sx, sy, sz) || 1;
+    const n = [sx / l, sy / l, sz / l];
+    const vk = `${k}|${n.map((c) => Math.round(c * 1e3)).join(',')}`;
+    let id = vertexIds.get(vk);
+    if (id === undefined) {
+      id = positions.length / 3;
+      positions.push(...p);
+      normals.push(...n);
+      vertexIds.set(vk, id);
+    }
+    indices.push(id);
+  }
 }
 
 const h = hex.replace('#', '');
 const color = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
 writeFileSync(output, buildGlb([{ name: 'Model', color, metallic: 0.4, roughness: 0.45, positions, normals, indices }]));
-console.log(`Wrote ${output} (${tris.length / 9} triangles)`);
+console.log(`Wrote ${output} (${faces.length} triangles, ${positions.length / 3} vertices)`);
