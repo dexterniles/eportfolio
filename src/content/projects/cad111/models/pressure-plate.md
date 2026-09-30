@@ -1,5 +1,5 @@
 ---
-title: Pressure Plate
+title: SolidWorks Tutorial 2 · Pressure Plate
 course: cad111
 section: models
 date: 2026-09-29

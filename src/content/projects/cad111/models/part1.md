@@ -1,5 +1,5 @@
 ---
-title: Part1 · Block with Bored Boss
+title: SolidWorks Tutorial 1 · Block with Bored Boss
 course: cad111
 section: models
 date: 2026-09-29
