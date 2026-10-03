@@ -1,0 +1,6 @@
+1|Barco S3|Processor|0|none
+2|Brompton SX40|Processor|1|Dexter
+3|AJA Ki Pro Go|Recorder|2|none
+4|Shure SM58|Microphone|0|none
+5|Sennheiser EW100|Wireless Mic|1|Alex
+6|Panasonic UCX1000|Broadcast Camera|0|none

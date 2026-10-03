@@ -127,6 +127,34 @@
   .prose-blueprint th, .prose-blueprint td { border: 1px solid var(--line); padding: 0.5em 0.75em; text-align: left; }
   .prose-blueprint th { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
 
+  /* Syntax-highlighted code (Shiki dual themes): sit on our surface color and switch with the site theme. */
+  .astro-code {
+    background-color: var(--surface) !important;
+    padding: 1rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    tab-size: 4;
+    /* Show code and program output exactly as typed (no "===" or "->" ligatures). */
+    font-variant-ligatures: none;
+  }
+  [data-theme="dark"] .astro-code span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+  }
+  .prose-blueprint pre.astro-code {
+    border: 1px solid var(--line);
+    border-radius: 0.375rem;
+  }
+  .prose-blueprint pre code {
+    border: 0;
+    padding: 0;
+    background: none;
+    font-size: inherit;
+  }
+
   /* Corner registration marks around a box. */
   .crop-marks {
     position: relative;

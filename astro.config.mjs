@@ -17,6 +17,8 @@ export default defineConfig({
   integrations: [sitemap()],
   // The stylesheet is small; inlining it removes a render-blocking request.
   build: { inlineStylesheets: 'always' },
+  // Code blocks in write-ups use the same light/dark themes as the source viewer.
+  markdown: { shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' } } },
   vite: {
     plugins: [tailwindcss()],
     // model-viewer is imported lazily, so the dev server can't discover it up front. Without this,

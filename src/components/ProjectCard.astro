@@ -8,7 +8,7 @@ interface Props {
 }
 const { project } = Astro.props;
 const d = project.data;
-const badges = [d.model && '3D', d.pdf && 'PDF', d.gallery.length > 0 && `${d.gallery.length} img`].filter(Boolean);
+const badges = [d.model && '3D', d.code && `${d.code.files.length} file${d.code.files.length === 1 ? "" : "s"}`, d.pdf && 'PDF', d.gallery.length > 0 && `${d.gallery.length} img`].filter(Boolean);
 ---
 
 <a

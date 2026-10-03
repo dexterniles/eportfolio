@@ -1,0 +1,121 @@
+---
+// Tabbed, syntax-highlighted source viewer. Files are read from /public at build time,
+// so each one is also downloadable at its own URL.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { Code } from 'astro:components';
+import { site } from '../site.config';
+
+interface Props {
+  dir: string; // e.g. /code/cis158/rental-tracker
+  files: string[];
+}
+const { dir, files } = Astro.props;
+
+const langFor = (name: string) => {
+  if (/^makefile$/i.test(name)) return 'makefile';
+  const ext = name.split('.').pop()?.toLowerCase();
+  return ({ c: 'c', h: 'c', cpp: 'cpp', sh: 'bash', py: 'python', md: 'markdown', json: 'json' } as Record<string, string>)[ext ?? ''] ?? 'plaintext';
+};
+
+const sources = files.map((name) => {
+  const code = readFileSync(join(process.cwd(), 'public', dir, name), 'utf8');
+  return { name, code, lang: langFor(name), lines: code.trimEnd().split('\n').length, href: `${dir}/${name}` };
+});
+const uid = dir.replace(/[^a-z0-9]+/gi, '-');
+const githubDir = site.github ? `${site.github}/tree/master/public${dir}` : null;
+---
+
+<div class="code-files rounded-md border border-line bg-surface" data-code-files>
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line px-2 pt-2">
+    <div role="tablist" aria-label="Source files" class="-mb-px flex gap-1 overflow-x-auto">
+      {
+        sources.map((s, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`${uid}-tab-${i}`}
+            aria-controls={`${uid}-panel-${i}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="shrink-0 rounded-t-md border border-transparent px-3 py-2 font-mono text-xs text-muted transition hover:text-accent aria-selected:border-line aria-selected:border-b-surface aria-selected:bg-surface aria-selected:text-accent"
+          >
+            {s.name}
+          </button>
+        ))
+      }
+    </div>
+    {
+      githubDir && (
+        <a href={githubDir} target="_blank" rel="noopener" class="mb-2 mr-2 font-mono text-xs text-accent hover:underline">
+          View folder on GitHub ↗
+        </a>
+      )
+    }
+  </div>
+
+  {
+    sources.map((s, i) => (
+      <div role="tabpanel" id={`${uid}-panel-${i}`} aria-labelledby={`${uid}-tab-${i}`} hidden={i !== 0} tabindex="0">
+        <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 font-mono text-xs text-muted">
+          <span>
+            {s.name} · {s.lines} lines
+          </span>
+          <span class="flex gap-4">
+            <button type="button" data-copy-code class="text-accent hover:underline">
+              <span data-idle>Copy</span>
+              <span data-done hidden>Copied ✓</span>
+            </button>
+            <a href={s.href} download class="text-accent hover:underline">
+              Download
+            </a>
+          </span>
+        </div>
+        <div class="max-h-[70vh] overflow-auto border-t border-line">
+          <Code code={s.code} lang={s.lang as any} themes={{ light: 'github-light', dark: 'github-dark-dimmed' }} />
+        </div>
+        <textarea hidden data-source>{s.code}</textarea>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-code-files]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, j) => {
+        t.setAttribute('aria-selected', String(i === j));
+        t.tabIndex = i === j ? 0 : -1;
+        panels[j].hidden = i !== j;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i));
+      t.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') select((i + 1) % tabs.length, true);
+        if (e.key === 'ArrowLeft') select((i - 1 + tabs.length) % tabs.length, true);
+      });
+    });
+    root.querySelectorAll<HTMLButtonElement>('[data-copy-code]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const src = btn.closest('[role="tabpanel"]')!.querySelector<HTMLTextAreaElement>('[data-source]')!.value;
+        try {
+          await navigator.clipboard.writeText(src);
+        } catch {
+          return;
+        }
+        const idle = btn.querySelector<HTMLElement>('[data-idle]')!;
+        const done = btn.querySelector<HTMLElement>('[data-done]')!;
+        idle.hidden = true;
+        done.hidden = false;
+        setTimeout(() => {
+          idle.hidden = false;
+          done.hidden = true;
+        }, 1800);
+      });
+    });
+  });
+</script>

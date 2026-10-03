@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import Gallery from '../../components/Gallery.astro';
+import CodeFiles from '../../components/CodeFiles.astro';
 import { courses } from '../../data/courses';
 import {
   formatDate,
@@ -83,6 +84,15 @@ const { Content } = await render(project);
   <article class="prose-blueprint mt-12 max-w-3xl">
     <Content />
   </article>
+
+  {
+    d.code && (
+      <section aria-labelledby="source-title" class="mt-14">
+        <h2 id="source-title" class="mb-4 text-2xl font-bold tracking-tight">Source code</h2>
+        <CodeFiles dir={d.code.dir} files={d.code.files} />
+      </section>
+    )
+  }
 
   {
     d.pdf && (
