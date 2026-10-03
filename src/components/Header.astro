@@ -4,13 +4,13 @@ import { courses } from '../data/courses';
 import ThemeToggle from './ThemeToggle.astro';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// "Coursework" covers every course and project page, so it's highlighted anywhere under a course.
+const onCoursePage = courses.some((c) => path === `/${c.slug}` || path.startsWith(`/${c.slug}/`));
 const links = [
-  { href: '/', label: 'Home' },
-  ...courses.map((c) => ({ href: `/${c.slug}`, label: c.code })),
-  { href: '/#contact', label: 'Contact' },
+  { href: '/', label: 'Home', active: path === '/' },
+  { href: '/#coursework', label: 'Coursework', active: onCoursePage },
+  { href: '/#contact', label: 'Contact', active: false },
 ];
-const isActive = (href: string) =>
-  href === '/' ? path === '/' : !href.includes('#') && path.startsWith(href);
 ---
 
 <header class="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
@@ -34,7 +34,7 @@ const isActive = (href: string) =>
             <li>
               <a
                 href={l.href}
-                aria-current={isActive(l.href) ? 'page' : undefined}
+                aria-current={l.active ? "page" : undefined}
                 class="rounded-md px-1.5 py-2 font-mono text-xs uppercase tracking-wider text-muted transition hover:text-accent aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 sm:px-3 sm:tracking-widest"
               >
                 {l.label}

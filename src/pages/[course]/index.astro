@@ -58,20 +58,24 @@ const zones = 'ABCDEFGH';
       </div>
     </div>
 
-    <ul class="mt-8 flex flex-wrap gap-2" aria-label="Jump to section">
-      {
-        course.sections.map((s, i) => (
-          <li>
-            <a
-              href={`#${s.slug}`}
-              class="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 font-mono text-xs uppercase tracking-widest transition hover:border-accent hover:text-accent"
-            >
-              <span class="text-accent">{zones[i]}</span> {s.title}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    {
+      course.sections.length > 0 && (
+      <ul class="mt-8 flex flex-wrap gap-2" aria-label="Jump to section">
+        {
+          course.sections.map((s, i) => (
+            <li>
+              <a
+                href={`#${s.slug}`}
+                class="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 font-mono text-xs uppercase tracking-widest transition hover:border-accent hover:text-accent"
+              >
+                <span class="text-accent">{zones[i]}</span> {s.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      )
+    }
   </header>
 
   {
@@ -104,5 +108,22 @@ const zones = 'ABCDEFGH';
         </section>
       );
     })
+  }
+
+  {
+    course.sections.length === 0 && (
+      <>
+        {course.coursework && course.coursework.length > 0 && (
+          <section aria-labelledby="coursework-title" class="border-t border-line py-12">
+            <h2 id="coursework-title" class="text-2xl font-bold tracking-tight">Key coursework</h2>
+            <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+              {course.coursework.map((item) => (
+                <li class="rounded-md border border-line bg-surface px-4 py-3">{item}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </>
+    )
   }
 </Base>

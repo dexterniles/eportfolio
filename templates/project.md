@@ -36,4 +36,3 @@ One or two sentences on the skill or idea this project taught you.
 
 <!-- ASSEMBLIES: "Parts in this assembly" (a table of Item | Part | Qty), "Mates used", Challenges, What I learned -->
 <!-- DRAWINGS: "Views", "Dimensioning choices", What I learned -->
-<!-- JOURNAL (mid-term / final): "Where I started", "What I've learned so far", "Project I'm proudest of", "Goals" or "Looking ahead" -->

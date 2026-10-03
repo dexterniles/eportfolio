@@ -71,7 +71,7 @@ const githubDir = site.github ? `${site.github}/tree/master/public${dir}` : null
             </a>
           </span>
         </div>
-        <div class="max-h-[70vh] overflow-auto border-t border-line">
+        <div class="h-[clamp(320px,65vh,720px)] overflow-auto border-t border-line">
           <Code code={s.code} lang={s.lang as any} themes={{ light: 'github-light', dark: 'github-dark-dimmed' }} />
         </div>
         <textarea hidden data-source>{s.code}</textarea>

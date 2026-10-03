@@ -9,6 +9,9 @@ import { courses } from '../data/courses';
 
 const projects = await getCollection('projects', (p) => !p.data.placeholder);
 const countFor = (slug: string) => projects.filter((p) => p.data.course === slug).length;
+// Courses with project sections get big cards; the rest are listed compactly as outline courses.
+const projectCourses = courses.filter((c) => c.sections.length > 0);
+const outlineCourses = courses.filter((c) => c.sections.length === 0);
 
 // The spinning model in the hero. Point this at any project with a model (or remove it to hide the viewer).
 const heroModel = await getEntry('projects', 'cad111/models/a1005');
@@ -94,15 +97,38 @@ const heroModel = await getEntry('projects', 'cad111/models/a1005');
     <p class="label">02 — Coursework</p>
     <h2 id="coursework-title" class="mt-2 text-3xl font-bold tracking-tight">What I'm building</h2>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
-      {courses.map((c) => <CourseCard course={c} count={countFor(c.slug)} />)}
-      <div class="grid place-items-center rounded-md border-2 border-dashed border-line p-6 text-center">
-        <div>
-          <p class="font-mono text-2xl text-muted" aria-hidden="true">+</p>
-          <p class="mt-2 font-medium">More courses on the way</p>
-          <p class="mt-1 text-sm text-muted">New classes get added here as I take them.</p>
-        </div>
-      </div>
+      {projectCourses.map((c) => <CourseCard course={c} count={countFor(c.slug)} />)}
     </div>
+
+    {
+      outlineCourses.length > 0 && (
+        <div class="mt-12">
+          <h3 class="label">Other coursework</h3>
+          <ul class="mt-4 divide-y divide-line overflow-hidden rounded-md border border-line bg-surface">
+            {outlineCourses.map((c) => (
+              <li>
+                <a
+                  href={`/${c.slug}`}
+                  class="group grid gap-1 px-5 py-4 transition hover:bg-paper sm:grid-cols-[8rem_1fr_auto] sm:items-baseline sm:gap-4"
+                >
+                  <span class="font-mono font-bold text-accent">{c.code}</span>
+                  <span>
+                    <span class="font-semibold group-hover:text-accent">{c.title}</span>
+                    <span class="mt-0.5 block text-sm text-muted">{c.summary}</span>
+                  </span>
+                  <span class="label whitespace-nowrap">
+                    {c.term} · {c.status}
+                    <span class="ml-2 text-accent transition group-hover:translate-x-1" aria-hidden="true">
+                      →
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
   </section>
 
   <!-- Contact -->
