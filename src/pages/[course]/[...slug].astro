@@ -112,12 +112,12 @@ const { Content } = await render(project);
     )
   }
 
-  <nav aria-label="More projects" class="mt-16 grid gap-4 border-t border-line pt-8 sm:grid-cols-2">
+  <nav aria-label="More projects" class="mt-16 grid grid-cols-2 gap-3 border-t border-line pt-8 sm:gap-4">
     {
       prev ? (
-        <a href={projectHref(prev)} class="group rounded-md border border-line bg-surface p-4 transition hover:border-accent">
+        <a href={projectHref(prev)} class="group rounded-md border border-line bg-surface p-3 transition hover:border-accent sm:p-4">
           <span class="label">← Previous</span>
-          <span class="mt-1 block font-semibold group-hover:text-accent">{prev.data.title}</span>
+          <span class="mt-1 block text-sm font-semibold break-words group-hover:text-accent sm:text-base">{prev.data.title}</span>
         </a>
       ) : (
         <span />
@@ -125,14 +125,14 @@ const { Content } = await render(project);
     }
     {
       next ? (
-        <a href={projectHref(next)} class="group rounded-md border border-line bg-surface p-4 text-right transition hover:border-accent">
+        <a href={projectHref(next)} class="group rounded-md border border-line bg-surface p-3 text-right transition hover:border-accent sm:p-4">
           <span class="label">Next →</span>
-          <span class="mt-1 block font-semibold group-hover:text-accent">{next.data.title}</span>
+          <span class="mt-1 block text-sm font-semibold break-words group-hover:text-accent sm:text-base">{next.data.title}</span>
         </a>
       ) : (
-        <a href={`/${course.slug}`} class="group rounded-md border border-line bg-surface p-4 text-right transition hover:border-accent">
+        <a href={`/${course.slug}`} class="group rounded-md border border-line bg-surface p-3 text-right transition hover:border-accent sm:p-4">
           <span class="label">Done</span>
-          <span class="mt-1 block font-semibold group-hover:text-accent">Back to {course.code}</span>
+          <span class="mt-1 block text-sm font-semibold break-words group-hover:text-accent sm:text-base">Back to {course.code}</span>
         </a>
       )
     }
