@@ -1,12 +1,10 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import CourseCard from '../components/CourseCard.astro';
 import CopyEmail from '../components/CopyEmail.astro';
 import { site } from '../site.config';
 import { courses } from '../data/courses';
-import portrait from '../assets/dexter-niles.jpg';
 
 const projects = await getCollection('projects', (p) => !p.data.placeholder);
 const countFor = (slug: string) => projects.filter((p) => p.data.course === slug).length;
@@ -14,35 +12,20 @@ const countFor = (slug: string) => projects.filter((p) => p.data.course === slug
 
 <Base sheet="Home">
   <!-- Hero -->
-  <section class="grid items-center gap-12 py-14 md:grid-cols-[auto_1fr] md:py-24">
-    <figure class="rise mx-auto w-56 sm:w-64 md:mx-0">
-      <div class="crop-marks">
-        <Image
-          src={portrait}
-          alt={`Portrait of ${site.name}`}
-          widths={[256, 384, 512]}
-          sizes="(min-width: 640px) 16rem, 14rem"
-          class="aspect-[4/5] w-full rounded-md border border-line object-cover"
-          loading="eager"
-        />
-      </div>
-      <!-- Dimension line under the photo -->
-      <div class="mt-4 flex items-center gap-2 text-accent" aria-hidden="true">
-        <span class="h-3 border-l-2 border-current"></span>
-        <span class="dim-line h-px flex-1 bg-current"></span>
-        <span class="font-mono text-[0.7rem] tracking-widest">FIG. 1</span>
-        <span class="dim-line h-px flex-1 bg-current"></span>
-        <span class="h-3 border-l-2 border-current"></span>
-      </div>
-    </figure>
-
-    <div class="rise text-center md:text-left" style="animation-delay: 80ms">
+  <section class="py-16 md:py-28">
+    <div class="rise">
       <p class="label">{site.program}</p>
-      <h1 class="mt-3 text-5xl font-bold tracking-tight sm:text-7xl">
+      <h1 class="mt-3 text-5xl font-bold tracking-tight sm:text-7xl md:text-8xl">
         {site.name.split(' ')[0]} <span class="text-accent">{site.name.split(' ').slice(1).join(' ')}</span>
       </h1>
-      <p class="mx-auto mt-5 max-w-xl text-lg text-muted md:mx-0">{site.tagline}</p>
-      <div class="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
+      <!-- Dimension line under the name -->
+      <div class="mt-5 flex max-w-xl items-center gap-2 text-accent" aria-hidden="true">
+        <span class="h-3 border-l-2 border-current"></span>
+        <span class="dim-line h-px flex-1 bg-current"></span>
+        <span class="h-3 border-l-2 border-current"></span>
+      </div>
+      <p class="mt-5 max-w-xl text-lg text-muted">{site.tagline}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
         <a
           href="#coursework"
           class="rounded-md bg-accent px-5 py-2.5 font-medium text-accent-ink transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--highlight)]"
