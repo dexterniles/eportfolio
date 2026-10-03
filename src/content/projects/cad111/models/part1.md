@@ -2,7 +2,6 @@
 title: SolidWorks Tutorial 1 · Block with Bored Boss
 course: cad111
 section: models
-date: 2026-09-29
 summary: A square block with a raised round boss and a bore through its face.
 model: /models/part1.glb
 cover: ./images/part1.png

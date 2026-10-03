@@ -2,7 +2,6 @@
 title: Turn-Based Combat Simulator
 course: cis158
 section: c-projects
-date: 2026-04-12
 summary: "A player-versus-monster battle where each character is a struct, and random rolls decide every hit, miss, and damage amount."
 software: C · gcc
 cover: ./images/combat-simulator.png

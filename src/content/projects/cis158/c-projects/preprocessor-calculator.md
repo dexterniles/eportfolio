@@ -2,7 +2,6 @@
 title: Preprocessor Calculator
 course: cis158
 section: c-projects
-date: 2026-04-05
 summary: "A menu-driven calculator whose scientific features are switched on or off at compile time with #define and #ifdef."
 software: C · gcc
 cover: ./images/preprocessor-calculator.png

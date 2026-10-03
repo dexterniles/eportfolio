@@ -2,7 +2,6 @@
 title: Binary Search Tree
 course: cis158
 section: c-projects
-date: 2026-04-19
 summary: "Builds a binary search tree from user input, prints all three traversals, and reports its height and a search result."
 software: C · gcc · make
 cover: ./images/binary-search-tree.png

@@ -2,7 +2,6 @@
 title: SolidWorks Tutorial 2 · Pressure Plate
 course: cad111
 section: models
-date: 2026-09-29
 summary: A round pressure plate with six hollow bosses, modeled in SolidWorks.
 model: /models/pressure-plate.glb
 cover: ./images/pressure-plate.png

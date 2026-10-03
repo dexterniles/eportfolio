@@ -4,8 +4,7 @@
 # Delete any optional lines you don't use.
 title: Spur Gear
 course: cad111
-section: models          # models | assemblies | drawings | journal
-date: 2026-11-03
+section: models          # a section slug from src/data/courses.ts (e.g. models, drawings, c-projects)
 summary: One or two sentences shown on the card and at the top of the page.
 # software: SolidWorks                  # optional, defaults to the course's software
 # model: /models/spur-gear.glb          # optional 3D model in public/models/

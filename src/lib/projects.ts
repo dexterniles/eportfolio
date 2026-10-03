@@ -12,7 +12,7 @@ export const projectHref = (p: Project) => `/${p.data.course}/${projectSlug(p)}`
 export const sectionTitle = (courseSlug: string, sectionSlug: string) =>
   getCourse(courseSlug)?.sections.find((s) => s.slug === sectionSlug)?.title ?? sectionSlug;
 
-// All projects in a course, ordered by section, then `order`, then date.
+// All projects in a course, ordered by section, then `order`, then title.
 export async function getCourseProjects(courseSlug: string) {
   const course = getCourse(courseSlug);
   const sectionIndex = (s: string) => {
@@ -24,9 +24,7 @@ export async function getCourseProjects(courseSlug: string) {
     (a, b) =>
       sectionIndex(a.data.section) - sectionIndex(b.data.section) ||
       a.data.order - b.data.order ||
-      a.data.date.getTime() - b.data.date.getTime(),
+      a.data.title.localeCompare(b.data.title),
   );
 }
 
-export const formatDate = (d: Date) =>
-  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });

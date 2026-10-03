@@ -7,7 +7,6 @@ import Gallery from '../../components/Gallery.astro';
 import CodeFiles from '../../components/CodeFiles.astro';
 import { courses } from '../../data/courses';
 import {
-  formatDate,
   getCourse,
   getCourseProjects,
   projectHref,
@@ -64,7 +63,6 @@ const { Content } = await render(project);
     <p class="mt-4 max-w-2xl text-lg text-muted">{d.summary}</p>
     <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3">
       <div><dt class="label">Section</dt><dd class="mt-1 font-mono text-sm">{section}</dd></div>
-      <div><dt class="label">Date</dt><dd class="mt-1 font-mono text-sm">{formatDate(d.date)}</dd></div>
       <div><dt class="label">Software</dt><dd class="mt-1 font-mono text-sm">{d.software ?? course.software}</dd></div>
     </dl>
   </header>

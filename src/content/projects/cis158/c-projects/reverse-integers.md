@@ -2,7 +2,6 @@
 title: Reverse Integers with a Stack
 course: cis158
 section: c-projects
-date: 2026-04-19
 summary: "Reads a list of integers and prints them in reverse using a linked-list stack."
 software: C · gcc · make
 cover: ./images/reverse-integers.png

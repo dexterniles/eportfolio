@@ -2,7 +2,6 @@
 title: AV Gear Rental Tracker
 course: cis158
 section: final-project
-date: 2026-05-12
 summary: A command-line inventory manager in C that tracks AV equipment, who has it checked out, and what's in maintenance, saved to a text file between runs.
 software: C · gcc · make
 cover: ./images/rental-tracker.png

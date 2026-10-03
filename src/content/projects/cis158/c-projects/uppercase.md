@@ -2,7 +2,6 @@
 title: Command Line Arguments and User Input
 course: cis158
 section: c-projects
-date: 2026-04-26
 summary: A small C utility that uppercases text from a prompt, a command-line argument, or a file, with optional output to a new file.
 software: C · gcc · make
 cover: ./images/uppercase.png

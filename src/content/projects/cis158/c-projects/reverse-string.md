@@ -2,7 +2,6 @@
 title: Reverse a String with a Stack
 course: cis158
 section: c-projects
-date: 2026-04-19
 summary: "Reverses any line of text character by character with a linked-list stack, looping until you say stop."
 software: C · gcc · make
 cover: ./images/reverse-string.png

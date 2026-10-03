@@ -2,7 +2,6 @@
 title: Superhero Power Tracker
 course: cis158
 section: c-projects
-date: 2026-03-29
 summary: "A menu program that stores five superpowers as bit flags in a single unsigned int, using bitwise operators to add, remove, and check them."
 software: C · gcc
 cover: ./images/superhero-power-tracker.png

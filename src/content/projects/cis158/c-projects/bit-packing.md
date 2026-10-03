@@ -2,7 +2,6 @@
 title: Bit Printing & Character Packing
 course: cis158
 section: c-projects
-date: 2026-03-29
 summary: "Prints an integer's 32 bits and packs four characters into a single int, then unpacks them again."
 software: C · gcc · make
 cover: ./images/bit-packing.png
