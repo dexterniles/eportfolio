@@ -2,7 +2,7 @@
 export const site = {
   name: 'Dexter Niles',
   initials: 'DN',
-  program: 'Engineering Transfer Program — Mechanical Engineering',
+  program: 'Engineering Transfer Path to UMass Dartmouth — Mechanical Engineering',
   school: 'Bristol Community College',
   tagline:
     'Engineering student at Bristol Community College, learning to turn ideas into parts, assemblies, and drawings.',
