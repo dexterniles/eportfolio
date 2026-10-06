@@ -123,9 +123,42 @@
     font-style: italic;
   }
   .prose-blueprint img { border: 1px solid var(--line); border-radius: 0.375rem; }
-  .prose-blueprint table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-  .prose-blueprint th, .prose-blueprint td { border: 1px solid var(--line); padding: 0.5em 0.75em; text-align: left; }
-  .prose-blueprint th { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  /* Tables: a solid panel so they read cleanly over the blueprint grid in both themes. */
+  .prose-blueprint table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--line);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background: var(--surface);
+    font-size: 0.95rem;
+  }
+  .prose-blueprint th,
+  .prose-blueprint td {
+    padding: 0.6em 0.9em;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  .prose-blueprint th + th,
+  .prose-blueprint td + td { border-left: 1px solid var(--line); }
+  .prose-blueprint tbody tr:last-child td { border-bottom: 0; }
+  .prose-blueprint thead th {
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .prose-blueprint tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+  /* First column is usually a label: soften it, and keep it on one line where there's room. */
+  .prose-blueprint tbody td:first-child:not(:only-child) { color: var(--ink-muted); }
+  @media (min-width: 640px) {
+    .prose-blueprint tbody td:first-child:not(:only-child) { white-space: nowrap; }
+  }
+  /* Spec tables written with a blank header row ("| | |") skip that empty strip. */
+  .prose-blueprint thead:not(:has(th:not(:empty))) { display: none; }
 
   /* Syntax-highlighted code (Shiki dual themes): sit on our surface color and switch with the site theme. */
   .astro-code {

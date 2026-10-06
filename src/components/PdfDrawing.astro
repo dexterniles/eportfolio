@@ -1,0 +1,46 @@
+---
+// Embedded PDF drawing with open/download links. Browsers that can't show PDFs inline
+// get the cover image (if any) plus a link instead.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  pdf: string;
+  title: string;
+  fallback?: ImageMetadata;
+  fallbackAlt?: string;
+}
+const { pdf, title, fallback, fallbackAlt } = Astro.props;
+---
+
+<section aria-labelledby="drawing-title">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <h2 id="drawing-title" class="text-2xl font-bold tracking-tight">Drawing</h2>
+    <div class="flex gap-4 font-mono text-sm">
+      <a href={pdf} target="_blank" rel="noopener" class="text-accent hover:underline">Open PDF ↗</a>
+      <a href={pdf} download class="text-accent hover:underline">Download ↓</a>
+    </div>
+  </div>
+  <div class="crop-marks mt-4">
+    <object
+      data={pdf}
+      type="application/pdf"
+      aria-label={`${title} (PDF)`}
+      title={`${title} (PDF)`}
+      class="block h-[clamp(420px,80vh,900px)] w-full rounded-md border border-line bg-surface"
+    >
+      {
+        fallback ? (
+          <a href={pdf} class="block p-4">
+            <Image src={fallback} alt={fallbackAlt ?? title} width={1400} class="w-full rounded" />
+            <span class="mt-3 block text-center font-mono text-sm text-accent">Open the full PDF ↗</span>
+          </a>
+        ) : (
+          <p class="p-6 text-muted">
+            Your browser can't show the PDF here. <a href={pdf} class="text-accent underline">Open the drawing</a> instead.
+          </p>
+        )
+      }
+    </object>
+  </div>
+</section>

@@ -17,6 +17,8 @@ order: 2
 | Bosses | 6, hollow |
 | Software | SolidWorks |
 
+See the [Pressure Plate Drawing](/cad111/drawings/pressure-plate-drawing) for the dimensioned views.
+
 <!--
 Fill in the sections below when you're ready, then remove this comment's opening and closing lines.
 

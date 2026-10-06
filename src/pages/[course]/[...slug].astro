@@ -5,6 +5,7 @@ import Base from '../../layouts/Base.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import Gallery from '../../components/Gallery.astro';
 import CodeFiles from '../../components/CodeFiles.astro';
+import PdfDrawing from '../../components/PdfDrawing.astro';
 import { courses } from '../../data/courses';
 import {
   getCourse,
@@ -67,9 +68,12 @@ const { Content } = await render(project);
     </dl>
   </header>
 
+  {/* Main media: the 3D model, else the drawing (for drawing projects), else the cover image. */}
   {
     d.model ? (
       <ModelViewer src={d.model} alt={d.coverAlt ?? `3D model of ${d.title}`} />
+    ) : d.pdf ? (
+      <PdfDrawing pdf={d.pdf} title={d.title} fallback={d.cover} fallbackAlt={d.coverAlt} />
     ) : (
       d.cover && (
         <div class="crop-marks">
@@ -93,21 +97,10 @@ const { Content } = await render(project);
   }
 
   {
-    d.pdf && (
-      <section aria-labelledby="drawing-title" class="mt-14">
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="drawing-title" class="text-2xl font-bold tracking-tight">Drawing</h2>
-          <div class="flex gap-3 font-mono text-sm">
-            <a href={d.pdf} target="_blank" rel="noopener" class="text-accent hover:underline">Open PDF ↗</a>
-            <a href={d.pdf} download class="text-accent hover:underline">Download ↓</a>
-          </div>
-        </div>
-        <object data={d.pdf} type="application/pdf" aria-label={`${d.title} (PDF)`} title={`${d.title} (PDF)`} class="mt-4 h-[75vh] w-full rounded-md border border-line bg-surface">
-          <p class="p-6 text-muted">
-            Your browser can't show the PDF here. <a href={d.pdf} class="text-accent underline">Open the drawing</a> instead.
-          </p>
-        </object>
-      </section>
+    d.pdf && d.model && (
+      <div class="mt-14">
+        <PdfDrawing pdf={d.pdf} title={d.title} />
+      </div>
     )
   }
 
