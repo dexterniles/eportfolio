@@ -17,6 +17,9 @@
   --accent: #1d5fd1;
   --accent-ink: #ffffff;
   --highlight: #c2410c;
+  /* DN logo colors (from the logo files): navy + blue on light, white + light blue on dark */
+  --dn-primary: #0b1f3f;
+  --dn-accent: #3b82f6;
 }
 
 [data-theme="dark"] {
@@ -31,6 +34,8 @@
   --accent: #6cd0ff;
   --accent-ink: #0b1f3f;
   --highlight: #ffb454;
+  --dn-primary: #ffffff;
+  --dn-accent: #9cc2ff;
 }
 
 @theme {

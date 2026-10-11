@@ -36,8 +36,11 @@ const ogImage = new URL('/og.png', Astro.site);
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b1f3f" media="(prefers-color-scheme: dark)" />
+    <!-- Icons generated from the DN logo by `npm run icons` -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="generator" content={Astro.generator} />
     <!-- Set the theme before first paint so there's no flash. -->
     <script is:inline>

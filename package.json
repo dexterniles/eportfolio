@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "stl2glb": "node scripts/stl-to-glb.mjs",
-    "og": "node scripts/make-og-image.mjs"
+    "og": "node scripts/make-og-image.mjs",
+    "icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

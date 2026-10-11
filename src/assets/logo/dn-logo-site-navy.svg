@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-7 -7 134 134" role="img" aria-label="Dexter Niles logo">
+  <title>Dexter Niles</title>
+  
+  <path fill="#0b1f3f" fill-rule="evenodd" d="M0,0 L120,0 L120,120 L0,120 Z M6,6 L114,6 L114,114 L6,114 Z"/>
+  <path fill="#0b1f3f" fill-rule="evenodd" d="M20,38 H36 A22,22 0 0 1 36,82 H20 Z M28,46 H36 A14,14 0 0 1 36,74 H28 Z M64,38 L73,38 L92,66 L92,38 L100,38 L100,82 L91,82 L72,54 L72,82 L64,82 Z"/>
+  <path fill="#3b82f6" d="M59,-7 L61,-7 L61,0 L59,0 Z M59,120 L61,120 L61,127 L59,127 Z M-7,59 L0,59 L0,61 L-7,61 Z M120,59 L127,59 L127,61 L120,61 Z"/>
+</svg>

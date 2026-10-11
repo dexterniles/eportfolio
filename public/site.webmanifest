@@ -1,0 +1,21 @@
+{
+  "name": "Dexter Niles · e-Portfolio",
+  "short_name": "Dexter Niles",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#0b1f3f",
+  "background_color": "#0b1f3f",
+  "display": "browser"
+}

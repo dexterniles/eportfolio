@@ -2,6 +2,7 @@
 import { site } from '../site.config';
 import { courses } from '../data/courses';
 import ThemeToggle from './ThemeToggle.astro';
+import Logo from './Logo.astro';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 // "Coursework" covers every course and project page, so it's highlighted anywhere under a course.
@@ -20,11 +21,8 @@ const links = [
     >Skip to content</a
   >
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-    <a href="/" class="group flex items-center gap-3">
-      <span
-        class="grid size-10 place-items-center rounded-md border-2 border-accent font-mono text-sm font-bold text-accent transition group-hover:rotate-6"
-        aria-hidden="true">{site.initials}</span
-      >
+    <a href="/" class="group flex items-center gap-3 [&:hover_.dn-logo]:[--dn-frame:var(--dn-accent)]">
+      <Logo class="size-10" />
       <span class="sr-only font-semibold tracking-tight sm:not-sr-only">{site.name}</span>
     </a>
     <nav aria-label="Main">

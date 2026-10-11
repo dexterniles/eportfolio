@@ -11,6 +11,9 @@ const paper = '#0b1f3f', line = '#6cd0ff', ink = '#e4efff', muted = '#9db4d6', h
 
 // Render area on the right side of the card
 const rx = 600, ry = 120, rw = 540, rh = 360;
+// The DN logo (white/light-blue reverse version) in the top-left corner.
+const logo = await sharp('src/assets/logo/dn-logo-reverse-white.svg', { density: 600 }).resize(76, 76).png().toBuffer();
+
 const render = await sharp(await sharp(FEATURED).trim().toBuffer()).resize(rw, rh, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
 
 const grid = [];
@@ -46,7 +49,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 </svg>`;
 
 await sharp(Buffer.from(svg))
-  .composite([{ input: render, left: rx, top: ry }])
+  .composite([{ input: render, left: rx, top: ry }, { input: logo, left: 90, top: 70 }])
   .png({ compressionLevel: 9 })
   .toFile('public/og.png');
 console.log('Wrote public/og.png');
