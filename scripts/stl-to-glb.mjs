@@ -1,18 +1,21 @@
 // Convert an STL export (SolidWorks or Fusion 360) into a .glb for the 3D viewer.
 //
-//   npm run stl2glb -- <input.stl> <output.glb> [hex color] [--z-up]
+//   npm run stl2glb -- <input.stl> <output.glb> [hex color] [--z-up] [--no-compress]
+//   (models are meshopt-compressed for the web by default)
 //   npm run stl2glb -- ~/Desktop/bracket.STL public/models/bracket.glb "#b8c0cc"
 //
 // SolidWorks exports Y-up, which matches the viewer. If a model shows up lying on its side
 // (common with Z-up Fusion 360 setups), run it again with --z-up. Size doesn't matter, the viewer auto-frames.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { buildGlb } from './lib/glb.mjs';
+import { optimizeGlb } from './lib/optimize-glb.mjs';
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const zUp = process.argv.includes('--z-up');
+const compress = !process.argv.includes('--no-compress');
 const [input, output, hex = '#b8c0cc'] = args;
 if (!input || !output) {
-  console.error('Usage: npm run stl2glb -- <input.stl> <output.glb> [hex color] [--z-up]');
+  console.error('Usage: npm run stl2glb -- <input.stl> <output.glb> [hex color] [--z-up] [--no-compress]');
   process.exit(1);
 }
 
@@ -99,5 +102,8 @@ for (const f of faces) {
 
 const h = hex.replace('#', '');
 const color = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
-writeFileSync(output, buildGlb([{ name: 'Model', color, metallic: 0.4, roughness: 0.45, positions, normals, indices }]));
-console.log(`Wrote ${output} (${faces.length} triangles, ${positions.length / 3} vertices)`);
+// Meshopt-compress for the web unless --no-compress is passed.
+const raw = buildGlb([{ name: 'Model', color, metallic: 0.4, roughness: 0.45, positions, normals, indices }]);
+const glb = compress ? await optimizeGlb(raw) : raw;
+writeFileSync(output, glb);
+console.log(`Wrote ${output} (${faces.length} triangles, ${(glb.length / 1024).toFixed(0)} KB${compress ? `, compressed from ${(raw.length / 1024).toFixed(0)} KB` : ''})`);

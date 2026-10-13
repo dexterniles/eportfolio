@@ -88,13 +88,9 @@ const { src, alt } = Astro.props;
 </style>
 
 <script>
-  // Load the 3D engine once the page has finished loading and gone idle, so text and
-  // images appear first and the page stays responsive while it starts up.
-  const loadViewer = () => import('@google/model-viewer');
-  const whenIdle = (fn: () => void) =>
-    'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 300);
-  if (document.readyState === 'complete') whenIdle(loadViewer);
-  else addEventListener('load', () => whenIdle(loadViewer), { once: true });
+  import { loadModelViewerWhenIdle } from '../lib/load-model-viewer';
+
+  loadModelViewerWhenIdle();
 
   document.querySelectorAll<HTMLElement>('.model-frame').forEach((frame) => {
     const stage = frame.querySelector<HTMLElement>('[data-stage]')!;

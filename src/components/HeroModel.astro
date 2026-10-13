@@ -48,12 +48,9 @@ const { model, title, coverAlt } = project.data;
 </style>
 
 <script>
-  // Same lazy-load approach as the project viewer: wait until the page has loaded and gone idle.
-  const loadViewer = () => import('@google/model-viewer');
-  const whenIdle = (fn: () => void) =>
-    'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 300);
-  if (document.readyState === 'complete') whenIdle(loadViewer);
-  else addEventListener('load', () => whenIdle(loadViewer), { once: true });
+  import { loadModelViewerWhenIdle } from '../lib/load-model-viewer';
+
+  loadModelViewerWhenIdle();
 
   // Respect reduced motion: no auto-spin.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {

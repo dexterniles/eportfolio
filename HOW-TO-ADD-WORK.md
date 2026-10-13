@@ -53,7 +53,8 @@ The viewer needs a `.glb` file in `public/models/`. The dependable route from ei
    ```sh
    npm run stl2glb -- ~/Desktop/Bracket.STL public/models/bracket.glb "#b8c0cc"
    ```
-   The last value is the model's color (any hex color, optional).
+   The last value is the model's color (any hex color, optional). The model is compressed for the
+   web automatically (about 75% smaller with no visible difference).
 
 ### Fusion 360
 1. In the browser tree, right-click the body or component → **Save As Mesh** (or **File → Export** and choose STL).
