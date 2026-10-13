@@ -24,3 +24,11 @@ pnpm-debug.log*
 .idea/
 .vercel
 .env*
+
+# inbox/: local drop folders for new content. Files here are staged, processed,
+# and moved to their real home; only the folder structure and README are tracked.
+inbox/**
+!inbox/
+!inbox/*/
+!inbox/README.md
+!inbox/**/.gitkeep

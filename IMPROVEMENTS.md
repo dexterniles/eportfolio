@@ -1,0 +1,68 @@
+# Site improvements
+
+Tracking list from the October 2026 review. Check items off as they ship, and add notes
+(commit, date, what changed) under each one.
+
+**Baseline (Lighthouse, live site, Oct 13 2026):** every page scores 100 for Performance,
+Best Practices, and SEO, with LCP of 1.0–1.4 s. Accessibility is 100 everywhere except
+CIS158 code pages at 97 (see item 11).
+
+**Suggested order:** 1 → 2 → 3 → 4 → 11 (highest impact for the effort).
+
+## Tier 1: Big wins
+
+- [x] **1. Vercel Analytics + Speed Insights**
+  Visitor counts, referrers, and devices (no cookies, no consent banner), plus real
+  load times from actual visitors. Add the two packages to the layout, then turn both
+  on in the Vercel dashboard.
+  - *Done Oct 13 2026:* `@vercel/analytics` 2.0.1 and `@vercel/speed-insights` 2.0.0 added to
+    `src/layouts/Base.astro`, so every page reports. Data starts flowing once both are enabled
+    in the Vercel dashboard (project → Analytics → Enable, and Speed Insights → Enable).
+- [ ] **2. Preview image while 3D models load**
+  Show each model's cover render instantly and swap in the interactive model when it's
+  ready, so phones never see an empty box. Covers already exist for every model.
+- [ ] **3. Smaller 3D model files**
+  Compress `.glb` files (gltf-transform: meshopt + quantization). Models total 1.7 MB
+  today; the Pressure Plate alone is 795 KB. Expect a 70–85% reduction. Build it into
+  `npm run stl2glb` so future models are compressed automatically.
+- [ ] **4. Hide empty sections**
+  Only show a course section (and its chip on the home card) once it has work, so
+  CAD111 doesn't show "Nothing posted here yet" for Assemblies and Design Project.
+- [ ] **5. Move content tools into the repo**
+  The cover renders, terminal covers, and C sample-run recorder only exist in Claude's
+  temporary scratchpad. Add them as `npm run covers` / `npm run transcript` so new
+  content can be added repeatably.
+
+## Tier 2: Medium
+
+- [ ] **6. Per-project share previews**
+  Use each project's cover as its link-preview image instead of the site-wide card.
+- [ ] **7. Smooth page transitions**
+  Astro View Transitions between pages. Requires the 3D viewer, code tabs, and copy
+  buttons to re-initialize after each transition.
+- [ ] **8. Organize the CAD111 Models grid**
+  21 models in one run. Group by assignment (M01, M02A, M02B, M03A, …) with small
+  headings, or add filter chips.
+- [ ] **9. Cache models and drawings**
+  `.glb` and `.pdf` files are served with `max-age=0`. Add `vercel.json` headers so
+  browsers keep them for a day.
+- [ ] **10. SolidWorks-style edge lines (bigger project)**
+  A custom Three.js viewer that draws black feature edges over the shading, like
+  "Shaded with Edges". Most distinctive upgrade, most work.
+
+## Tier 3: Minor polish
+
+- [ ] **11. Code comment contrast in dark mode**
+  Comments are 3.8:1 against the required 4.5:1 (the 97 accessibility score). One CSS line.
+- [ ] **12. Footer tagline**
+  "All dimensions in inches unless noted" contradicts the millimeter spec tables.
+- [ ] **13. Spec table units**
+  Pressure Plate is mm only; later parts show mm and inches. Pick one style.
+- [ ] **14. Remove leftover code**
+  The unused `placeholder` field/badge and the `initials` setting (replaced by the logo).
+- [ ] **15. Part names**
+  CAD111-0001 to -0006 and C1001–C1003 still have descriptive placeholder names.
+  Rename them to the course names.
+- [ ] **16. Multi-sheet drawings on iPhone**
+  Embedded PDFs show only page 1 on iPhone. Fine for one-sheet drawings; switch to a
+  page-by-page image view if multi-sheet drawings are added.

@@ -1,5 +1,9 @@
 # How to add work to the e-Portfolio
 
+> **Quickest way:** drop files in the matching [`inbox/`](inbox/README.md) folder (`models/`, `drawings/`,
+> `code/`, `images/`, `documents/`) and ask Claude to process the inbox. The steps below are the
+> manual route.
+
 Each project is one Markdown file in `src/content/projects/<course>/<section>/`.
 The file name becomes the URL: `src/content/projects/cad111/models/gear.md` → `/cad111/models/gear`.
 
