@@ -10,6 +10,8 @@ export function getStaticPaths() {
 
 const { course } = Astro.props as { course: Course };
 const projects = await getCourseProjects(course.slug);
+// Only sections with at least one project are shown; they reappear automatically once work is added.
+const visibleSections = course.sections.filter((s) => projects.some((p) => p.data.section === s.slug));
 const zones = 'ABCDEFGH';
 ---
 
@@ -59,10 +61,10 @@ const zones = 'ABCDEFGH';
     </div>
 
     {
-      course.sections.length > 0 && (
+      visibleSections.length > 0 && (
       <ul class="mt-8 flex flex-wrap gap-2" aria-label="Jump to section">
         {
-          course.sections.map((s, i) => (
+          visibleSections.map((s, i) => (
             <li>
               <a
                 href={`#${s.slug}`}
@@ -79,7 +81,7 @@ const zones = 'ABCDEFGH';
   </header>
 
   {
-    course.sections.map((s, i) => {
+    visibleSections.map((s, i) => {
       const items = projects.filter((p) => p.data.section === s.slug);
       return (
         <section id={s.slug} aria-labelledby={`${s.slug}-title`} class="scroll-mt-20 border-t border-line py-12">
@@ -92,22 +94,22 @@ const zones = 'ABCDEFGH';
               <p class="mt-1 text-muted">{s.blurb}</p>
             </div>
           </div>
-          {items.length > 0 ? (
-            <ul class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((p) => (
-                <li>
-                  <ProjectCard project={p} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p class="mt-8 rounded-md border-2 border-dashed border-line p-8 text-center font-mono text-sm text-muted">
-              Nothing posted here yet.
-            </p>
-          )}
+          <ul class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((p) => (
+              <li>
+                <ProjectCard project={p} />
+              </li>
+            ))}
+          </ul>
         </section>
       );
     })
+  }
+
+  {
+    course.sections.length > 0 && visibleSections.length === 0 && (
+      <p class="border-t border-line py-12 text-center font-mono text-sm text-muted">Projects coming soon.</p>
+    )
   }
 
   {

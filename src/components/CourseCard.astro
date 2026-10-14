@@ -4,8 +4,10 @@ import type { Course } from '../data/courses';
 interface Props {
   course: Course;
   count: number;
+  activeSections: string[]; // section slugs that have at least one project
 }
-const { course, count } = Astro.props;
+const { course, count, activeSections } = Astro.props;
+const sections = course.sections.filter((s) => activeSections.includes(s.slug));
 ---
 
 <a
@@ -19,9 +21,13 @@ const { course, count } = Astro.props;
   <h3 class="mt-3 text-xl font-semibold">{course.title}</h3>
   <p class="label mt-1">{course.term} · {course.status}</p>
   <p class="mt-2 text-muted">{course.summary}</p>
-  <ul class="mt-5 flex flex-wrap gap-2" aria-label="Sections">
-    {course.sections.map((s) => <li class="label rounded-full border border-dashed border-line px-2.5 py-1">{s.title}</li>)}
-  </ul>
+  {
+    sections.length > 0 && (
+      <ul class="mt-5 flex flex-wrap gap-2" aria-label="Sections">
+        {sections.map((s) => <li class="label rounded-full border border-dashed border-line px-2.5 py-1">{s.title}</li>)}
+      </ul>
+    )
+  }
   <div class="mt-auto flex items-center justify-between pt-6">
     <span class="label">{count > 0 ? `${count} project${count === 1 ? '' : 's'}` : 'Projects coming soon'}</span>
     <span class="font-mono text-sm text-accent transition group-hover:translate-x-1" aria-hidden="true">Open →</span>

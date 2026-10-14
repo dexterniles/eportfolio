@@ -9,6 +9,7 @@ import { courses } from '../data/courses';
 
 const projects = await getCollection('projects', (p) => !p.data.placeholder);
 const countFor = (slug: string) => projects.filter((p) => p.data.course === slug).length;
+const activeSectionsFor = (slug: string) => [...new Set(projects.filter((p) => p.data.course === slug).map((p) => p.data.section))];
 // Courses with project sections get big cards; the rest are listed compactly as outline courses.
 const projectCourses = courses.filter((c) => c.sections.length > 0);
 const outlineCourses = courses.filter((c) => c.sections.length === 0);
@@ -97,7 +98,7 @@ const heroModel = await getEntry('projects', 'cad111/models/a1005');
     <p class="label">02 — Coursework</p>
     <h2 id="coursework-title" class="mt-2 text-3xl font-bold tracking-tight">What I'm building</h2>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
-      {projectCourses.map((c) => <CourseCard course={c} count={countFor(c.slug)} />)}
+      {projectCourses.map((c) => <CourseCard course={c} count={countFor(c.slug)} activeSections={activeSectionsFor(c.slug)} />)}
     </div>
 
     {

@@ -1,5 +1,6 @@
 ---
-// Interactive 3D viewer for .glb files in /public. Loads model-viewer only on pages that use it.
+// Interactive 3D viewer for .glb files in /public, with SolidWorks-style edge lines.
+// three.js loads only on pages that use it (see src/lib/load-cad-viewers.ts).
 interface Props {
   src: string;
   alt: string;
@@ -9,26 +10,24 @@ const { src, alt } = Astro.props;
 
 <figure class="model-frame crop-marks">
   <div data-stage class="relative overflow-hidden rounded-md border border-line bg-surface/60">
-    <model-viewer
-      src={src}
-      alt={alt}
-      camera-controls
-      auto-rotate
-      auto-rotate-delay="2000"
-      rotation-per-second="18deg"
-      interaction-prompt="auto"
-      shadow-intensity="0.9"
-      shadow-softness="0.8"
-      exposure="1.05"
-      tone-mapping="neutral"
-      touch-action="pan-y"
+    <div
+      class="cad-viewer"
+      data-cad-viewer
+      data-src={src}
+      role="img"
+      aria-label={alt}
+      tabindex="0"
+      aria-describedby="viewer-keys"
     >
-      <div slot="progress-bar" class="absolute inset-x-0 top-0 h-0.5">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-0.5 transition-opacity">
         <div data-progress class="h-full w-0 bg-accent transition-[width]"></div>
       </div>
-    </model-viewer>
+    </div>
 
     <div class="absolute right-3 top-3 flex gap-2">
+      <button type="button" data-edges class="mv-btn" aria-label="Hide edge lines" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>
+      </button>
       <button type="button" data-reset class="mv-btn" aria-label="Reset view">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
       </button>
@@ -41,26 +40,32 @@ const { src, alt } = Astro.props;
     </div>
   </div>
   <figcaption class="mt-3 flex flex-wrap justify-between gap-2 font-mono text-xs text-muted">
-    <span>Drag to rotate · scroll or pinch to zoom · right-drag to pan</span>
+    <span id="viewer-keys">Drag to rotate · scroll or pinch to zoom · right-drag to pan · arrow keys rotate</span>
     <a href={src} download class="text-accent hover:underline">Download .glb</a>
   </figcaption>
 </figure>
 
 <style>
-  model-viewer {
-    /* Block before the script upgrades it, so the height reserves space and nothing jumps. */
+  .cad-viewer {
+    /* Fixed height reserves the space before the model loads, so nothing jumps. */
+    position: relative;
     display: block;
     width: 100%;
     height: clamp(320px, 62vh, 600px);
-    background: transparent;
-    --poster-color: transparent;
-    --progress-bar-color: transparent;
+    cursor: grab;
+    outline: none;
+  }
+  .cad-viewer:active {
+    cursor: grabbing;
+  }
+  .cad-viewer:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--highlight);
   }
   [data-stage]:fullscreen {
     background: var(--paper);
     border-radius: 0;
   }
-  [data-stage]:fullscreen model-viewer {
+  [data-stage]:fullscreen .cad-viewer {
     height: 100dvh;
   }
   .mv-btn {
@@ -88,40 +93,50 @@ const { src, alt } = Astro.props;
 </style>
 
 <script>
-  import { loadModelViewerWhenIdle } from '../lib/load-model-viewer';
+  import { loadCadViewersWhenIdle, type CadViewerElement } from '../lib/load-cad-viewers';
 
-  loadModelViewerWhenIdle();
+  loadCadViewersWhenIdle();
 
   document.querySelectorAll<HTMLElement>('.model-frame').forEach((frame) => {
     const stage = frame.querySelector<HTMLElement>('[data-stage]')!;
-    const mv = frame.querySelector('model-viewer') as any;
-    const bar = frame.querySelector<HTMLElement>('[data-progress]')!;
+    const el = frame.querySelector<CadViewerElement>('[data-cad-viewer]')!;
     const spin = frame.querySelector<HTMLButtonElement>('[data-spin]')!;
+    const edges = frame.querySelector<HTMLButtonElement>('[data-edges]')!;
     const full = frame.querySelector<HTMLButtonElement>('[data-full]')!;
 
-    mv.addEventListener('progress', (e: any) => {
-      const p = e.detail.totalProgress;
-      bar.style.width = `${p * 100}%`;
-      bar.parentElement!.style.opacity = p >= 1 ? '0' : '1';
+    // Buttons store their state in data-* attributes, so clicks before the viewer
+    // finishes loading still take effect when it starts.
+    const toggle = (btn: HTMLButtonElement, attr: 'autoRotate' | 'edges', labels: [string, string]) => {
+      const on = el.dataset[attr] === 'false';
+      el.dataset[attr] = String(on);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.setAttribute('aria-label', on ? labels[0] : labels[1]);
+      if (attr === 'autoRotate') el.cadViewer?.setAutoRotate(on);
+      else el.cadViewer?.setEdges(on);
+    };
+    spin.addEventListener('click', () => toggle(spin, 'autoRotate', ['Pause rotation', 'Resume rotation']));
+    edges.addEventListener('click', () => toggle(edges, 'edges', ['Hide edge lines', 'Show edge lines']));
+    frame.querySelector('[data-reset]')!.addEventListener('click', () => el.cadViewer?.reset());
+
+    // Keyboard: arrows rotate, +/- zoom, 0 resets.
+    el.addEventListener('keydown', (e) => {
+      const v = el.cadViewer;
+      if (!v) return;
+      const keys: Record<string, () => void> = {
+        ArrowLeft: () => v.rotateBy(-15),
+        ArrowRight: () => v.rotateBy(15),
+        '+': () => v.zoomBy(0.85),
+        '=': () => v.zoomBy(0.85),
+        '-': () => v.zoomBy(1.18),
+        '0': () => v.reset(),
+      };
+      if (keys[e.key]) {
+        e.preventDefault();
+        keys[e.key]();
+      }
     });
 
-    frame.querySelector('[data-reset]')!.addEventListener('click', async () => {
-      await customElements.whenDefined('model-viewer');
-      mv.cameraOrbit = 'auto auto auto';
-      mv.cameraTarget = 'auto auto auto';
-      mv.fieldOfView = 'auto';
-      mv.resetTurntableRotation?.();
-    });
-
-    // Toggle the attribute (not the property) so this works before the viewer script has loaded.
-    spin.addEventListener('click', () => {
-      const on = !mv.hasAttribute('auto-rotate');
-      mv.toggleAttribute('auto-rotate', on);
-      spin.setAttribute('aria-pressed', String(on));
-      spin.setAttribute('aria-label', on ? 'Pause rotation' : 'Resume rotation');
-    });
-
-    // Respect reduced-motion: start paused.
+    // Respect reduced motion: start paused.
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) spin.click();
 
     // Element fullscreen isn't available on iPhone, so only show the button where it works.

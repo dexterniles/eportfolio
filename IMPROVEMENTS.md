@@ -7,7 +7,7 @@ Tracking list from the October 2026 review. Check items off as they ship, and ad
 Best Practices, and SEO, with LCP of 1.0–1.4 s. Accessibility is 100 everywhere except
 CIS158 code pages at 97 (see item 10).
 
-**Suggested order:** 1 → 2 → 3 → 4 → 10 (highest impact for the effort). Next up: **3 → 4 → 10**.
+**Suggested order:** 1 → 2 → 3 → 4 → 10 (highest impact for the effort). Next up: **4 → 10**.
 
 *Oct 13 2026: dropped "Preview image while 3D models load". Model compression made models
 load fast enough that a placeholder image isn't needed.*
@@ -30,9 +30,12 @@ load fast enough that a placeholder image isn't needed.*
     `npm run stl2glb` now compresses by default (`--no-compress` to skip), and
     `npm run compress-models` compresses anything in `public/models/` that isn't yet.
     Both viewers share `src/lib/load-model-viewer.ts`, which turns on the meshopt decoder.
-- [ ] **3. Hide empty sections**
+- [x] **3. Hide empty sections**
   Only show a course section (and its chip on the home card) once it has work, so
   CAD111 doesn't show "Nothing posted here yet" for Assemblies and Design Project.
+  - *Done Oct 13 2026:* course pages and home cards only list sections with projects; section
+    letters stay consecutive (CAD111 is now A · Models, B · Drawings). Sections reappear
+    automatically when work is added.
 - [ ] **4. Move content tools into the repo**
   The cover renders, terminal covers, and C sample-run recorder only exist in Claude's
   temporary scratchpad. Add them as `npm run covers` / `npm run transcript` so new
@@ -51,9 +54,18 @@ load fast enough that a placeholder image isn't needed.*
 - [ ] **8. Cache models and drawings**
   `.glb` and `.pdf` files are served with `max-age=0`. Add `vercel.json` headers so
   browsers keep them for a day.
-- [ ] **9. SolidWorks-style edge lines (bigger project)**
+- [x] **9. SolidWorks-style edge lines (bigger project)**
   A custom Three.js viewer that draws black feature edges over the shading, like
   "Shaded with Edges". Most distinctive upgrade, most work.
+  - *Done Oct 13 2026:* model-viewer replaced by `src/lib/cad-viewer.ts` (three.js 0.186):
+    feature edges at a 30° crease angle drawn as fixed-width lines (crisp on Retina),
+    studio environment lighting, soft contact shadow, turntable auto-spin, reset / pause /
+    fullscreen, a new edges on/off button, and keyboard controls (arrows, +/−, 0).
+    Viewer JS 279 → 168 KB gzipped. Shaders compile asynchronously, so the home page still
+    scores 99 for performance. All 21 model thumbnails and the share card were re-rendered
+    with the new viewer.
+  - *Possible follow-up:* silhouette lines on curved surfaces (the sides of cylinders), which
+    SolidWorks also draws; needs a screen-space outline pass.
 
 ## Tier 3: Minor polish
 

@@ -1,6 +1,6 @@
 // Shrinks a .glb for the web: removes duplicate data, then applies meshopt compression
 // (which reorders and quantizes the geometry first). Visually identical, typically 70-85% smaller.
-// The site's viewer decodes it with model-viewer's built-in meshopt decoder.
+// The site's viewer (src/lib/cad-viewer.ts) decodes it with three.js's MeshoptDecoder.
 import { Logger, NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { dedup, prune, meshopt } from '@gltf-transform/functions';
