@@ -7,6 +7,7 @@ import {
   DirectionalLight,
   EdgesGeometry,
   Group,
+  type InterleavedBufferAttribute,
   Mesh,
   MeshStandardMaterial,
   NeutralToneMapping,
@@ -59,6 +60,131 @@ export interface CadViewer {
 const EDGE_ANGLE = 30;
 const EDGE_COLOR = 0x0f1726;
 const DEG = Math.PI / 180;
+
+// Silhouette lines: where a curved surface turns away from the viewer (the sides of a
+// cylinder), SolidWorks draws an outline even though there's no feature edge there. Those
+// lines depend on the view, so they're recomputed whenever the part or camera moves: any
+// smooth edge between a triangle facing the camera and one facing away is on the silhouette.
+interface Silhouette {
+  mesh: Mesh;
+  lines: LineSegments2;
+  verts: Float32Array; // welded vertex positions (x,y,z)
+  normals: Float32Array; // per-triangle normal
+  planeD: Float32Array; // per-triangle plane offset (normal · vertex)
+  edges: Uint32Array; // candidate edges: vertA, vertB, triangle1, triangle2
+  facing: Uint8Array;
+  out: Float32Array; // segment buffer written into the line geometry
+}
+
+function buildSilhouette(mesh: Mesh, material: LineMaterial): Silhouette | null {
+  const pos = mesh.geometry.getAttribute('position');
+  const index = mesh.geometry.getIndex();
+  const triCount = (index ? index.count : pos.count) / 3;
+  if (!triCount) return null;
+
+  // Weld vertices by position: the STL converter splits vertices at sharp creases, which
+  // would otherwise hide which triangles share an edge.
+  mesh.geometry.computeBoundingBox();
+  const size = mesh.geometry.boundingBox!.getSize(new Vector3()).length() || 1;
+  const eps = size * 1e-6;
+  const weld = new Map<string, number>();
+  const remap = new Uint32Array(pos.count);
+  const verts: number[] = [];
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    const key = `${Math.round(x / eps)},${Math.round(y / eps)},${Math.round(z / eps)}`;
+    let id = weld.get(key);
+    if (id === undefined) {
+      id = verts.length / 3;
+      weld.set(key, id);
+      verts.push(x, y, z);
+    }
+    remap[i] = id;
+  }
+
+  const normals = new Float32Array(triCount * 3);
+  const planeD = new Float32Array(triCount);
+  const a = new Vector3(), b = new Vector3(), c = new Vector3();
+  const edgeFaces = new Map<number, number[]>();
+  const vertCount = verts.length / 3;
+  for (let t = 0; t < triCount; t++) {
+    const tri = [0, 1, 2].map((k) => remap[index ? index.getX(t * 3 + k) : t * 3 + k]);
+    a.fromArray(verts, tri[0] * 3);
+    b.fromArray(verts, tri[1] * 3);
+    c.fromArray(verts, tri[2] * 3);
+    const normal = b.sub(a).cross(c.sub(a)).normalize(); // (b - a) × (c - a)
+    if (normal.lengthSq() < 0.5) continue; // degenerate sliver
+    normal.toArray(normals, t * 3);
+    planeD[t] = normal.dot(a);
+    for (let k = 0; k < 3; k++) {
+      const v1 = tri[k], v2 = tri[(k + 1) % 3];
+      if (v1 === v2) continue;
+      const key = Math.min(v1, v2) * vertCount + Math.max(v1, v2);
+      const list = edgeFaces.get(key);
+      if (list) list.push(t);
+      else edgeFaces.set(key, [t]);
+    }
+  }
+
+  // Keep edges shared by exactly two triangles that meet smoothly (sharper ones already
+  // have a permanent feature line).
+  const cosLimit = Math.cos(EDGE_ANGLE * DEG);
+  const edges: number[] = [];
+  for (const [key, faces] of edgeFaces) {
+    if (faces.length !== 2) continue;
+    const [f1, f2] = faces;
+    const dot = normals[f1 * 3] * normals[f2 * 3] + normals[f1 * 3 + 1] * normals[f2 * 3 + 1] + normals[f1 * 3 + 2] * normals[f2 * 3 + 2];
+    if (dot < cosLimit || dot > 0.999999) continue; // sharp (feature line) or flat (never a silhouette)
+    edges.push(Math.floor(key / vertCount), key % vertCount, f1, f2);
+  }
+  if (!edges.length) return null;
+
+  const geometry = new LineSegmentsGeometry();
+  const out = new Float32Array((edges.length / 4) * 6);
+  geometry.setPositions(out);
+  geometry.instanceCount = 0;
+  const lines = new LineSegments2(geometry, material);
+  lines.frustumCulled = false; // its contents change every frame
+  lines.raycast = () => {};
+  mesh.add(lines);
+  return {
+    mesh,
+    lines,
+    verts: new Float32Array(verts),
+    normals,
+    planeD,
+    edges: new Uint32Array(edges),
+    facing: new Uint8Array(triCount),
+    out,
+  };
+}
+
+const camLocal = new Vector3();
+function updateSilhouette(s: Silhouette, cameraWorld: Vector3) {
+  camLocal.copy(cameraWorld);
+  s.mesh.worldToLocal(camLocal);
+  const { normals, planeD, facing, edges, verts, out } = s;
+  for (let t = 0; t < facing.length; t++) {
+    facing[t] = normals[t * 3] * camLocal.x + normals[t * 3 + 1] * camLocal.y + normals[t * 3 + 2] * camLocal.z > planeD[t] ? 1 : 0;
+  }
+  let n = 0;
+  for (let e = 0; e < edges.length; e += 4) {
+    if (facing[edges[e + 2]] === facing[edges[e + 3]]) continue;
+    const va = edges[e] * 3, vb = edges[e + 1] * 3;
+    out[n++] = verts[va];
+    out[n++] = verts[va + 1];
+    out[n++] = verts[va + 2];
+    out[n++] = verts[vb];
+    out[n++] = verts[vb + 1];
+    out[n++] = verts[vb + 2];
+  }
+  const geometry = s.lines.geometry;
+  const buffer = (geometry.getAttribute('instanceStart') as InterleavedBufferAttribute).data;
+  buffer.clearUpdateRanges();
+  buffer.addUpdateRange(0, n);
+  buffer.needsUpdate = true;
+  geometry.instanceCount = n / 6;
+}
 
 export function createCadViewer(container: HTMLElement, options: CadViewerOptions): CadViewer {
   const opts = {
@@ -125,6 +251,8 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
   // screens. LineMaterial draws edges at a fixed width in CSS pixels on any display.
   const edgeMaterial = new LineMaterial({ color: EDGE_COLOR, linewidth: opts.edgeWidth, transparent: true, opacity: 0.9 });
   const edgeLines: LineSegments2[] = [];
+  const silhouettes: Silhouette[] = [];
+  let edgesOn = opts.edges;
 
   // --- framing --------------------------------------------------------------
   const home = { position: new Vector3(), target: new Vector3() };
@@ -207,6 +335,12 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
           lines.visible = opts.edges;
           mesh.add(lines);
           edgeLines.push(lines);
+          const silhouette = buildSilhouette(mesh, edgeMaterial);
+          if (silhouette) {
+            silhouette.lines.visible = opts.edges;
+            edgeLines.push(silhouette.lines);
+            silhouettes.push(silhouette);
+          }
         });
         // Center the part on the turntable axis.
         const box = new Box3().setFromObject(model);
@@ -270,6 +404,10 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     }
     if (framed) controls.update(); // applies damping; fires 'change' while still moving
     if (dirty) {
+      if (edgesOn && silhouettes.length) {
+        scene.updateMatrixWorld();
+        silhouettes.forEach((s) => updateSilhouette(s, camera.position));
+      }
       renderer.render(scene, camera);
       dirty = false;
     }
@@ -296,6 +434,7 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
       requestRender();
     },
     setEdges(on) {
+      edgesOn = on;
       edgeLines.forEach((l) => (l.visible = on));
       requestRender();
     },

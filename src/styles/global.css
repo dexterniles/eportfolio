@@ -80,6 +80,29 @@
   }
 }
 
+/* Page transitions: the browser cross-fades between pages on its own (no client router), so
+   every page still loads fresh and its scripts, 3D viewers included, start up normally.
+   Supported in Safari 18.2+ and Chrome 126+; other browsers just load the page as usual.
+   The header stays put while the page content slides in. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  #site-header { view-transition-name: site-header; }
+  #main { view-transition-name: page; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+  ::view-transition-old(page) { animation: 0.16s ease-in both page-out; }
+  ::view-transition-new(page) { animation: 0.28s 0.06s cubic-bezier(0.2, 0.7, 0.2, 1) both page-in; }
+  ::view-transition-group(site-header) { animation-duration: 0.2s; z-index: 1; /* above the sliding content */ }
+}
+@keyframes page-out {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
 @layer components {
   /* Small monospace label, like text on a drawing. */
   .label {

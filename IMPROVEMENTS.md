@@ -45,9 +45,14 @@ load fast enough that a placeholder image isn't needed.*
 
 - [ ] **5. Per-project share previews**
   Use each project's cover as its link-preview image instead of the site-wide card.
-- [ ] **6. Smooth page transitions**
+- [x] **6. Smooth page transitions**
   Astro View Transitions between pages. Requires the 3D viewer, code tabs, and copy
   buttons to re-initialize after each transition.
+  - *Done Oct 13 2026:* used the browser's built-in cross-page transitions
+    (`@view-transition` in `global.css`) instead of Astro's client router. Every page still
+    loads normally, so nothing needs re-initializing. The header stays put while the content
+    fades and slides in. Off for reduced motion; older browsers load pages as before. Links
+    also prefetch on hover so the transition starts right away.
 - [ ] **7. Organize the CAD111 Models grid**
   21 models in one run. Group by assignment (M01, M02A, M02B, M03A, …) with small
   headings, or add filter chips.
@@ -64,8 +69,8 @@ load fast enough that a placeholder image isn't needed.*
     Viewer JS 279 → 168 KB gzipped. Shaders compile asynchronously, so the home page still
     scores 99 for performance. All 21 model thumbnails and the share card were re-rendered
     with the new viewer.
-  - *Possible follow-up:* silhouette lines on curved surfaces (the sides of cylinders), which
-    SolidWorks also draws; needs a screen-space outline pass.
+  - *Follow-up done Oct 13 2026:* silhouette lines on curved surfaces (the sides of
+    cylinders), recomputed as the part turns. Thumbnails and share card re-rendered again.
 
 ## Tier 3: Minor polish
 

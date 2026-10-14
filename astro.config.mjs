@@ -17,14 +17,27 @@ export default defineConfig({
   integrations: [sitemap()],
   // The stylesheet is small; inlining it removes a render-blocking request.
   build: { inlineStylesheets: 'always' },
+  // Fetch a page when a link is hovered or tapped, so the page transition starts right away.
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   // Code blocks in write-ups use the same light/dark themes as the source viewer.
   markdown: { shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' } } },
   vite: {
     plugins: [tailwindcss()],
-    // model-viewer is imported lazily, so the dev server can't discover it up front. Without this,
-    // the first visit to a 3D page gets a 504 "Outdated Optimize Dep" and the viewer never loads.
-    optimizeDeps: { include: ['@google/model-viewer'] },
-    // The 3D viewer (model-viewer + three.js) is ~1 MB, ~250 KB gzipped, and only loads on pages with a model.
+    // three.js is imported lazily, so the dev server can't discover it up front. Without this,
+    // the first visit to a 3D page can get a 504 "Outdated Optimize Dep" and the viewer never loads.
+    optimizeDeps: {
+      include: [
+        'three',
+        'three/examples/jsm/loaders/GLTFLoader.js',
+        'three/examples/jsm/controls/OrbitControls.js',
+        'three/examples/jsm/environments/RoomEnvironment.js',
+        'three/examples/jsm/libs/meshopt_decoder.module.js',
+        'three/examples/jsm/lines/LineSegments2.js',
+        'three/examples/jsm/lines/LineSegmentsGeometry.js',
+        'three/examples/jsm/lines/LineMaterial.js',
+      ],
+    },
+    // The 3D viewer (three.js) is ~170 KB gzipped and only loads on pages with a model.
     build: { chunkSizeWarningLimit: 1200 },
   },
 });
