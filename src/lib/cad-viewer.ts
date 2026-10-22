@@ -42,6 +42,9 @@ export interface CadViewerOptions {
   phi?: number; // starting polar angle, degrees (90 = level)
   edges?: boolean;
   edgeWidth?: number; // edge line width in CSS pixels
+  // Phones: let vertical swipes over the viewer scroll the page. Only suits a viewer that
+  // just spins sideways (the home-page hero); otherwise touch drags belong to the model.
+  swipeScroll?: boolean;
   onProgress?: (fraction: number) => void;
 }
 
@@ -197,6 +200,7 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     phi: 68,
     edges: true,
     edgeWidth: 1.25,
+    swipeScroll: false,
     // Unset options (undefined) must not overwrite the defaults above.
     ...Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined)),
   } as Required<Omit<CadViewerOptions, 'onProgress'>> & Pick<CadViewerOptions, 'onProgress'>;
@@ -245,7 +249,10 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
   controls.dampingFactor = 0.08;
   controls.enableZoom = opts.zoom;
   controls.enablePan = opts.pan;
-  canvas.style.touchAction = 'pan-y'; // let vertical swipes scroll the page on phones
+  // OrbitControls sets touch-action: none, so drags rotate in any direction and pinch zooms
+  // the model. If the page took vertical swipes instead, Safari would cancel a rotation
+  // partway through as soon as a drag drifted up or down.
+  if (opts.swipeScroll) canvas.style.touchAction = 'pan-y';
 
   // "Fat" lines: plain WebGL lines are always 1 device pixel, which is hair-thin on Retina
   // screens. LineMaterial draws edges at a fixed width in CSS pixels on any display.

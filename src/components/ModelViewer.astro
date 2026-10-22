@@ -51,9 +51,15 @@ const { src, alt } = Astro.props;
     position: relative;
     display: block;
     width: 100%;
-    height: clamp(320px, 62vh, 600px);
+    /* Shorter on phones so there's always page left above or below to swipe-scroll on. */
+    height: clamp(300px, 55vh, 600px);
     cursor: grab;
     outline: none;
+  }
+  @media (min-width: 640px) {
+    .cad-viewer {
+      height: clamp(320px, 62vh, 600px);
+    }
   }
   .cad-viewer:active {
     cursor: grabbing;

@@ -30,6 +30,7 @@ export function loadCadViewersWhenIdle() {
         theta: num(d.theta),
         phi: num(d.phi),
         edges: d.edges !== 'false',
+        swipeScroll: d.swipeScroll === 'true',
         onProgress: (p) => {
           if (!bar) return;
           bar.style.width = `${p * 100}%`;
