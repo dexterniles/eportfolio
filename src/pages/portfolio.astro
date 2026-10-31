@@ -1,0 +1,192 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { competencies, getCompetency, getOutcome, outcomes } from '../data/competencies';
+import { getGroupProjects, getShowcaseGroups, zones } from '../lib/showcase';
+import { site } from '../site.config';
+
+// Selected work, grouped by skill set and tied to the industry competencies and Bristol course outcomes.
+// Groups live in src/content/showcase/ (one Markdown file each); the body is the group's narrative.
+const groups = await Promise.all(
+  (await getShowcaseGroups()).map(async (group) => ({
+    group,
+    projects: await getGroupProjects(group),
+    Content: (await render(group)).Content,
+  })),
+);
+const exampleCount = groups.reduce((n, g) => n + g.projects.length, 0);
+---
+
+<Base
+  title="Portfolio"
+  description={`Selected CAD work by ${site.name}, grouped by skill set: parametric modeling, components designed to fit, and engineering drawings.`}
+  sheet="Portfolio"
+>
+  <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">
+    <a href="/" class="hover:text-accent">Home</a>
+    <span aria-hidden="true"> / </span>
+    <span aria-current="page">Portfolio</span>
+  </nav>
+
+  <header class="py-8">
+    <p class="label">Portfolio · Selected work</p>
+    <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-6xl">
+      Selected <span class="text-accent">work</span>
+      <span class="mt-1 block text-2xl font-semibold text-ink sm:text-3xl">Mechanical design in SolidWorks</span>
+    </h1>
+    <div class="mt-4 max-w-3xl space-y-4 text-lg text-muted">
+      <p>
+        I'm {site.name}, a Mechanical Engineering transfer student at {site.school}. This page collects my
+        strongest CAD work so far, grouped by the skill set behind it. Each group explains what I learned producing
+        the work and how those skills carry over to an engineering team: building models that can change, making
+        parts that fit together, and documenting designs so other people can build them.
+      </p>
+      <p>
+        Every example opens to an interactive 3D model or a full drawing sheet, so you can inspect the work directly.
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 md:grid-cols-[14rem_1fr]">
+      <dl class="h-fit space-y-4 rounded-md border border-line bg-surface p-5">
+        <div>
+          <dt class="label">Course</dt>
+          <dd class="mt-1 font-mono text-sm"><a href="/cad111" class="hover:text-accent">CAD111</a></dd>
+        </div>
+        <div>
+          <dt class="label">Software</dt>
+          <dd class="mt-1 font-mono text-sm">SolidWorks</dd>
+        </div>
+        <div>
+          <dt class="label">Groups</dt>
+          <dd class="mt-1 font-mono text-sm">{groups.length}</dd>
+        </div>
+        <div>
+          <dt class="label">Examples</dt>
+          <dd class="mt-1 font-mono text-sm">{exampleCount}</dd>
+        </div>
+      </dl>
+      <div>
+        <h2 class="label">Competencies</h2>
+        <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+          {
+            competencies.map((c) => (
+              <li class="rounded-md border border-line bg-surface px-4 py-3">
+                <span class="font-semibold">{c.title}</span>
+                <span class="mt-1 block text-sm text-muted">{c.short}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <details class="group mt-6 rounded-md border border-line bg-surface">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 [&::-webkit-details-marker]:hidden">
+        <span class="label">Bristol course outcomes</span>
+        <span class="font-mono text-sm text-accent transition group-open:rotate-45" aria-hidden="true">+</span>
+      </summary>
+      <ol class="grid gap-x-8 gap-y-3 border-t border-line px-5 py-4 sm:grid-cols-2">
+        {
+          outcomes.map((o) => (
+            <li class="flex gap-3">
+              <span class="font-mono font-bold text-accent">{o.number}</span>
+              <span class="text-sm">{o.text}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </details>
+
+    {
+      groups.length > 0 && (
+        <ul class="mt-8 flex flex-wrap gap-2" aria-label="Jump to group">
+          {groups.map(({ group }, i) => (
+            <li>
+              <a
+                href={`#${group.id}`}
+                class="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 font-mono text-xs uppercase tracking-widest transition hover:border-accent hover:text-accent"
+              >
+                <span class="text-accent">{zones[i]}</span> {group.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </header>
+
+  {
+    groups.map(({ group, projects, Content }, i) => {
+      const d = group.data;
+      return (
+        <section id={group.id} aria-labelledby={`${group.id}-title`} class="scroll-mt-20 border-t border-line py-12">
+          {d.draft && (
+            <p class="mb-6 inline-block rounded bg-highlight px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-widest text-paper">
+              Draft: dev server only{projects.length < 3 && ` · needs ${3 - projects.length} more`}
+            </p>
+          )}
+          <div class="flex items-baseline gap-4">
+            <span class="grid size-10 shrink-0 place-items-center rounded-full border-2 border-accent font-mono font-bold text-accent" aria-hidden="true">
+              {zones[i]}
+            </span>
+            <div>
+              <h2 id={`${group.id}-title`} class="text-2xl font-bold tracking-tight">{d.title}</h2>
+              <ul class="mt-3 flex flex-wrap gap-2" aria-label="Competencies">
+                {d.competencies.map((c) => (
+                  <li class="rounded border border-accent/50 bg-accent/10 px-2.5 py-1 font-mono text-xs text-accent">{getCompetency(c).title}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <article class="prose-blueprint max-w-3xl">
+              <Content />
+            </article>
+            <aside class="h-fit space-y-5 rounded-md border border-line bg-surface p-5">
+              {d.skills.length > 0 && (
+                <div>
+                  <h3 class="label">Skills used</h3>
+                  <ul class="mt-3 space-y-2">
+                    {d.skills.map((s) => (
+                      <li class="flex gap-2.5 text-sm">
+                        <span class="mt-1.5 size-1.5 shrink-0 rotate-45 bg-accent" aria-hidden="true" />
+                        <span>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {d.outcomes.length > 0 && (
+                <div class="border-t border-line pt-5">
+                  <h3 class="label">Course outcomes</h3>
+                  <ul class="mt-3 space-y-2">
+                    {d.outcomes.map((slug) => {
+                      const o = getOutcome(slug);
+                      return (
+                        <li class="flex gap-2.5 text-sm">
+                          <span class="font-mono font-bold text-accent">{o.number}</span>
+                          <span>{o.text}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </aside>
+          </div>
+
+          <h3 class="label mt-10">Examples · {projects.length}</h3>
+          <ul class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((p) => (
+              <li>
+                <ProjectCard project={p} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })
+  }
+</Base>

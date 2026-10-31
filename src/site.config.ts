@@ -7,7 +7,7 @@ export const site = {
   tagline:
     'Engineering student at Bristol Community College, learning to turn ideas into parts, assemblies, and drawings.',
   intro:
-    "Welcome to my e-Portfolio. I'm in the Engineering Transfer Program with a focus on Mechanical Engineering. This site collects my coursework, CAD models, and projects so you can see what I'm building and how I'm growing along the way.",
+    "Welcome to my e-Portfolio. I'm in the Engineering Transfer Program with a focus on Mechanical Engineering. This site collects my CAD models, engineering drawings, and coursework, so employers and transfer schools can see what I can design, how I document it, and how I'm growing along the way.",
   skills: ['SolidWorks', 'Fusion 360', 'C', 'Linux', 'Git', 'Vim'],
   emails: [
     { label: 'Personal', address: 'dexterniles@icloud.com' },

@@ -80,7 +80,25 @@ Put it in `public/drawings/` and set `pdf: /drawings/<name>.pdf`.
 Put screenshots or renders next to the Markdown file (e.g. in an `images/` folder beside it) and reference them
 with a relative path. The site resizes and compresses them automatically.
 
-## 6. Preview and publish
+For models and drawings, the card image can be rendered for you:
+
+```sh
+npm run covers                  # renders any missing covers (model: 3D viewer, drawing: page 1 of the PDF)
+npm run covers -- spur-gear     # just this project; add --force to re-render an existing cover
+```
+
+It saves to `images/<name>.png` beside the Markdown file (or wherever `cover:` points) and tells you
+the `cover:` line to add if it's missing. The first time on a new computer, run `npx playwright install chromium`.
+
+## 6. Feature it on the Portfolio page (optional)
+
+The [Portfolio page](https://dexterniles.vercel.app/portfolio) groups your best work by skill set. Each group is a
+Markdown file in `src/content/showcase/`: the front matter lists the competencies, course outcomes, skills, and
+`projects` (by path, e.g. `cad111/models/spur-gear`), and the body is the narrative. A group needs at least 3
+projects to publish; until then, set `draft: true` and it only shows on the dev server. Competency and outcome
+wording lives in `src/data/competencies.ts`.
+
+## 7. Preview and publish
 
 ```sh
 npm run dev      # preview at http://localhost:4321

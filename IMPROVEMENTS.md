@@ -40,6 +40,11 @@ load fast enough that a placeholder image isn't needed.*
   The cover renders, terminal covers, and C sample-run recorder only exist in Claude's
   temporary scratchpad. Add them as `npm run covers` / `npm run transcript` so new
   content can be added repeatably.
+  - *Covers done Oct 31 2026:* the old scratchpad tools were lost in the move to a new PC, so
+    `npm run covers` (`scripts/render-covers.mjs`) was rebuilt with Playwright. It renders model
+    covers through the site's own 3D viewer and drawing covers from page 1 of the PDF (pdf.js),
+    as 1200×800 transparent PNGs. Test renders of A1005 and the Pressure Plate drawing match the
+    originals. Terminal covers and the C sample-run recorder are tabled (no new C projects planned).
 
 ## Tier 2: Medium
 
@@ -85,6 +90,8 @@ load fast enough that a placeholder image isn't needed.*
 - [ ] **14. Part names**
   CAD111-0001 to -0006 and C1001–C1003 still have descriptive placeholder names.
   Rename them to the course names.
+  - *C-clamp parts done Oct 31 2026:* C1001–C1003 renamed from the C1000 assembly drawing's bill of
+    materials (C-Clamp, C-Clamp - Screw, Clamp - Anvil). CAD111-0001 to -0006 still to do.
 - [ ] **15. Multi-sheet drawings on iPhone**
   Embedded PDFs show only page 1 on iPhone. Fine for one-sheet drawings; switch to a
   page-by-page image view if multi-sheet drawings are added.
