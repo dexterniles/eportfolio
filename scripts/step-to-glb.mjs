@@ -8,7 +8,15 @@
 // Purchased hardware (vendor models often have real threads) is simplified to within
 // --hardware-error of its own size (default 2%), which keeps the file small; at the size an
 // assembly shows on screen, thread detail is smaller than a pixel. Designed parts aren't touched.
-import { readFileSync, writeFileSync } from 'node:fs';
+//
+// --split <dir> also writes each designed part on its own (<dir>/<part>.glb, the same look as an
+// STL-converted part), so parts that only live inside an assembly get their own model without a
+// separate export. Parts that already have a model are skipped unless --force is given, and
+// --skip leaves out parts that aren't yours (e.g. ones supplied by an instructor); the sizes
+// printed are for the spec table on each part's page.
+//   npm run step2glb -- "cad/A1000 - Assembly.STEP" public/models/a1000.glb --split public/models --skip A1001
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { MeshoptSimplifier } from 'meshoptimizer';
 import { buildGlb } from './lib/glb.mjs';
@@ -23,10 +31,13 @@ const flag = (name) => {
 const colorOverrides = [];
 for (let c; (c = flag('--color')); ) colorOverrides.push(c.split('='));
 const hardwareError = Number(flag('--hardware-error') ?? 0.02);
+const splitDir = flag('--split');
+const skip = new Set((flag('--skip') ?? '').toUpperCase().split(',').filter(Boolean));
+const force = argv.includes('--force');
 const compress = !argv.includes('--no-compress');
 const [input, output] = argv.filter((a) => !a.startsWith('--'));
 if (!input || !output) {
-  console.error('Usage: npm run step2glb -- <input.step> <output.glb> [--color PART=#hex] [--hardware-error 0.02] [--no-compress]');
+  console.error('Usage: npm run step2glb -- <input.step> <output.glb> [--color PART=#hex] [--split <dir> [--skip PART,PART] [--force]] [--hardware-error 0.02] [--no-compress]');
   process.exit(1);
 }
 
@@ -115,4 +126,32 @@ console.log(`Wrote ${output}: ${counts.size} parts, ${instances.length} placed, 
 for (const [part, n] of [...counts].sort()) {
   const p = instances.find((q) => q.part === part);
   console.log(`  ${colorOf(p)}  ${part.padEnd(8)} ×${n}${p.vendor ? `  McMaster-Carr ${p.vendor}` : ''}${p.label ? `  ${p.label}` : ''}`);
+}
+
+// --split: each designed part on its own, from its first placed copy.
+if (splitDir) {
+  console.log(`\nSingle parts in ${splitDir}:`);
+  for (const part of designed) {
+    const p = instances.find((q) => q.part === part);
+    const out = join(splitDir, `${part.toLowerCase()}.glb`);
+    const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+    p.positions.forEach((v, i) => {
+      min[i % 3] = Math.min(min[i % 3], v);
+      max[i % 3] = Math.max(max[i % 3], v);
+    });
+    const mm = min.map((v, k) => max[k] - v);
+    const size = `${mm.map((v) => v.toFixed(1)).join(' × ')} mm (${mm.map((v) => (v / 25.4).toFixed(2)).join(' × ')} in)`;
+    if (skip.has(part)) {
+      console.log(`  ${part.padEnd(8)} skipped (--skip)`);
+      continue;
+    }
+    if (existsSync(out) && !force) {
+      console.log(`  ${part.padEnd(8)} skipped, ${out} exists  ·  ${size}`);
+      continue;
+    }
+    // Same color and finish as scripts/stl-to-glb.mjs, so it matches the other single-part models.
+    const single = buildGlb([{ name: 'Model', color: hexToRgb('#b8c0cc'), metallic: 0.4, roughness: 0.45, positions: p.positions, normals: p.normals, indices: p.indices }]);
+    writeFileSync(out, compress ? await optimizeGlb(single) : single);
+    console.log(`  ${part.padEnd(8)} wrote ${out}  ·  ${size}`);
+  }
 }

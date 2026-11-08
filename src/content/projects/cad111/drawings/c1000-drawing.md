@@ -9,7 +9,7 @@ coverAlt: Assembly drawing of a C-clamp showing a front view with cutting plane 
 order: 2
 ---
 
-The assembly drawing for the C-clamp, built from its four part models: the [C-Clamp frame](/cad111/models/c1001), [Screw](/cad111/models/c1002), [Anvil](/cad111/models/c1003), and [Pin](/cad111/models/c1004).
+The assembly drawing for the C-clamp, built from its four part models: the [C-Clamp frame](/cad111/models/c1001), [Screw](/cad111/models/c1002), [Anvil](/cad111/models/c1003), and [Pin](/cad111/models/c1004). See the [C1000 C-Clamp assembly](/cad111/assemblies/c1000) to explode it in 3D.
 
 ## Views
 | View | What it shows |

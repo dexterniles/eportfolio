@@ -314,19 +314,49 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
 
   // Fit a bounding sphere into the narrower of the vertical/horizontal field of view,
   // so a spinning part never clips (matters for the near-square hero viewer).
-  function fitBox(box: Box3): Fit {
+  function fitBox(box: Box3, points: Vector3[] = []): Fit {
     const sphere = box.getBoundingSphere(new Sphere());
     const vFov = camera.fov * DEG;
     const hFov = 2 * Math.atan(Math.tan(vFov / 2) * (camera.aspect || 1));
-    return { center: sphere.center, distance: ((sphere.radius || 1) / Math.sin(Math.min(vFov, hFov) / 2)) * 0.92 };
+    let distance = ((sphere.radius || 1) / Math.sin(Math.min(vFov, hFov) / 2)) * 0.92;
+    // A tall, thin part (a rack, a handle) fills that sphere top to bottom, and since the camera
+    // looks down on it, its near end pokes out the top. So also check the part's own surface
+    // points vertically, at every angle the turntable passes through. Compact parts never get
+    // close, so their framing doesn't change.
+    const tanV = Math.tan(vFov / 2) * 0.97;
+    const phi = opts.phi * DEG;
+    const v = new Vector3();
+    for (let a = 0; a < 360; a += 15) {
+      const t = (opts.theta - a) * DEG;
+      const dir = new Vector3(Math.sin(phi) * Math.sin(t), Math.cos(phi), Math.sin(phi) * Math.cos(t));
+      const up = new Vector3().crossVectors(dir, new Vector3().crossVectors(UP, dir).normalize());
+      for (const p of points) {
+        v.copy(p).sub(sphere.center);
+        distance = Math.max(distance, v.dot(dir) + Math.abs(v.dot(up)) / tanV);
+      }
+    }
+    return { center: sphere.center, distance };
+  }
+
+  // Up to ~3000 surface points spread across the meshes, in world space, for fitBox.
+  function samplePoints(meshes: Mesh[]) {
+    const total = meshes.reduce((n, m) => n + m.geometry.getAttribute('position').count, 0);
+    const step = Math.max(1, Math.ceil(total / 3000));
+    const points: Vector3[] = [];
+    for (const m of meshes) {
+      m.updateWorldMatrix(true, false);
+      const pos = m.geometry.getAttribute('position');
+      for (let i = 0; i < pos.count; i += step) points.push(new Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+    }
+    return points;
   }
   const fitTarget = (fit: Fit) => fit.center.clone().applyAxisAngle(UP, turntable.rotation.y);
   const currentFit = () => fits[explodeTarget && fits.length > 1 ? 1 : 0];
 
-  function frame(collapsed: Box3, exploded?: Box3) {
+  function frame(collapsed: Box3, points: Vector3[], exploded?: Box3, explodedPoints?: Vector3[]) {
     fits.length = 0;
-    fits.push(fitBox(collapsed));
-    if (exploded) fits.push(fitBox(exploded));
+    fits.push(fitBox(collapsed, points));
+    if (exploded) fits.push(fitBox(exploded, explodedPoints));
     const all = exploded ? collapsed.clone().union(exploded) : collapsed;
     const sphere = all.getBoundingSphere(new Sphere());
     radius = sphere.radius || 1;
@@ -529,6 +559,7 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
         model.position.z -= c.z;
         turntable.add(model);
         collapsed.translate(model.position);
+        const points = samplePoints(meshes);
         if (placed.length) {
           model.add(explodeLines);
           // Measure the exploded state, then settle on the starting one.
@@ -536,11 +567,12 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
           explodeT = 1;
           applyExplode();
           const exploded = meshBox(meshes);
+          const explodedPoints = samplePoints(meshes);
           explodeT = t;
           applyExplode();
-          frame(collapsed, exploded);
+          frame(collapsed, points, exploded, explodedPoints);
         } else {
-          frame(collapsed);
+          frame(collapsed, points);
         }
         // Compile shaders in the background (where supported) instead of freezing the page
         // on the first frame; render either way.

@@ -83,6 +83,13 @@ Keep models under ~10 MB so they load quickly on phones.
    ```
    Each part number gets its own color; purchased hardware (names like `A1010_91744A537`) shares one gray, and
    its thread detail is simplified to keep the file small. `--color A1005=#d8a24a` overrides a color.
+
+   **Shortcut for the parts:** add `--split public/models` and every designed part in the assembly is also written
+   as its own single-part model (`public/models/a1003.glb`, …), so you don't have to export each part separately.
+   Parts that already have a model are skipped (`--force` overwrites), and each part's size is printed for its
+   spec table. Leave out parts you didn't model with `--skip A1001` (the arbor press frame was supplied by the
+   instructor; credit supplied parts in the assembly's `labels:` instead of giving them a page). Then give each new part a page in `models/` (title `A1003 · Pinion`, spec table with an Assembly
+   row linking back) and run `npm run covers`.
 3. Make the page in `src/content/projects/<course>/assemblies/` with `model:` pointing at the file. The viewer adds an
    **Explode** button (and the **E** key), dashed explode lines, and a color key that links each part to its page.
 4. Optional front matter:

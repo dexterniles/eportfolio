@@ -17,7 +17,11 @@ projects:
   - cad111/models/cad111-0002
   - cad111/models/cad111-0003
   - cad111/models/v1003
+  - cad111/models/a1004
   - cad111/models/a1009
+  - cad111/models/a1007
+  - cad111/models/a1008
+  - cad111/models/a1006
   - cad111/models/v1006
   - cad111/models/c1004
   - cad111/models/v1007

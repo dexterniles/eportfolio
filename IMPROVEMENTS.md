@@ -7,7 +7,7 @@ and add notes (date, what changed) under each one.
 Best Practices, and SEO, with LCP of 1.0–1.4 s. Accessibility is 100 everywhere except
 CIS158 code pages at 97 (see item 10). Pages added since then haven't been measured.
 
-**Next up (Nov 8 2026):** **17 (CAD111 midterm portfolio)**, then the quick ones: 10, 11, 8.
+**Next up (Nov 8 2026):** **17 (CAD111 midterm portfolio)**: drawings, templates, more parts, special models.
 
 *Oct 13 2026: dropped "Preview image while 3D models load". Model compression made models
 load fast enough that a placeholder image isn't needed.*
@@ -37,11 +37,18 @@ load fast enough that a placeholder image isn't needed.*
   - [x] Viewer: Explode/Collapse toggle (E key), dashed explode lines, per-part `explode:` and `view:`
         front matter, color key / BOM with part and McMaster-Carr links, hover to highlight
   - [x] A1000 Arbor Press assembly page (CAD111 → Assemblies), exploded cover
+  - [x] C1000 C-Clamp assembly page (Nov 8): explodes like the drawing (screw out, pin up), with the
+        C1000 drawing shown under the model; C1001–C1004 link to it
+  - [x] `step2glb --split`: designed parts written as single-part models from the assembly (`--skip`
+        for parts that aren't Dexter's). Added A1002–A1004 and A1006–A1008 pages (Rack, Pinion,
+        Faceplate, Handle, Collar, Handle Knob) to the Simple and Complex Features groups. A1001 (Frame)
+        was supplied by the instructor: no page of its own, credited in the A1000 parts key
   - [x] Drawing Templates section in CAD111 (hidden until templates are added)
   - [ ] Waiting on exports: A/B/metric templates, CAD111-0002 to -0004 drawings, more parts, special
-        models (configurations, 3D sketch, reverse engineering). (A1000 STEP received Nov 8.)
-  - [ ] A1000: names for A1001–A1003 and A1006–A1008 (guessed in `labels:`), mates used, and a
-        screenshot of the SolidWorks exploded view to match its directions
+        models (configurations, 3D sketch, reverse engineering). (A1000 and C1000 STEP received Nov 8.)
+  - [ ] Final pass with Dexter: part names A1002, A1003, A1006–A1008 (guessed from the model; fine for
+        now), the C1000 mates, and the features named in the reflections. Confirmed Nov 8: the
+        arbor press uses SolidWorks' Rack and Pinion mechanical mate
   - [ ] In SolidWorks: revision "A" plus a revision block, fix the "MATERAIL" typo, all-caps
         text, a section or detail view on CAD111-0001, balloons on the C1000 exploded view
 
@@ -82,12 +89,13 @@ load fast enough that a placeholder image isn't needed.*
     `global.css`) instead of Astro's client router, so every page still loads normally and
     nothing needs re-initializing. Off for reduced motion. Links prefetch on hover.
 - [ ] **7. Organize the CAD111 Models grid**
-  21 models in one run on the CAD111 page. Group by assignment or skill with small headings,
-  or add filter chips. (Item 17's skill groups cover this on the Portfolio page; the course
-  page is the full archive.)
-- [ ] **8. Cache models and drawings**
-  `.glb` and `.pdf` files are still served with `max-age=0` (checked Nov 8 2026). Add
-  `vercel.json` headers so browsers keep them for a day.
+  28 models in one run on the CAD111 page (Nov 8 2026). Group by assignment or skill with small
+  headings, or add filter chips. (Item 17's skill groups cover this on the Portfolio page; the
+  course page is the full archive.)
+- [x] **8. Cache models and drawings**
+  - *Done Nov 8 2026:* `vercel.json` sends `Cache-Control: public, max-age=86400` for `/models/*` and
+    `/drawings/*`, so browsers keep them for a day (they were `max-age=0`). A model replaced at the
+    same path can take up to a day to refresh for a returning visitor.
 - [x] **9. SolidWorks-style edge lines**
   - *Done Oct 13 2026:* the `<model-viewer>` library was replaced by `src/lib/cad-viewer.ts`
     (three.js): feature edges at a 30° crease angle as fixed-width lines, studio lighting,
@@ -98,10 +106,13 @@ load fast enough that a placeholder image isn't needed.*
 
 ## Tier 3: Minor polish
 
-- [ ] **10. Code comment contrast in dark mode**
-  Comments are 3.8:1 against the required 4.5:1 (the 97 accessibility score). One CSS line.
-- [ ] **11. Footer tagline**
-  "All dimensions in inches unless noted" contradicts the millimeter spec tables.
+- [x] **10. Code comment contrast in dark mode**
+  Comments were 3.8:1 against the required 4.5:1 (the 97 accessibility score).
+  - *Done Nov 8 2026:* dark-mode comments lightened from `#768390` to `#8b98a6` in `global.css`:
+    measured 4.96:1 on the code background (light mode is 4.82:1).
+- [x] **11. Footer tagline**
+  "All dimensions in inches unless noted" contradicted the millimeter spec tables.
+  - *Done Nov 8 2026:* now "do not scale drawing", the standard title-block note.
 - [ ] **12. Spec table units**
   Pressure Plate is mm only; later parts show mm and inches; the CAD111-0001 drawing is in
   inches. Pick one style.
