@@ -1,11 +1,36 @@
 ---
 // Interactive 3D viewer for .glb files in /public, with SolidWorks-style edge lines.
 // three.js loads only on pages that use it (see src/lib/load-cad-viewers.ts).
+// Assemblies (multi-part .glb from `npm run step2glb`) also get an Explode/Collapse button
+// and a color key that names each part and links to its page.
+import { getCollection } from 'astro:content';
+import { readGlbParts } from '../lib/glb-parts';
+import { projectHref } from '../lib/projects';
+
 interface Props {
   src: string;
   alt: string;
+  explode?: Record<string, number[]>; // per-part explode offsets (see CadViewerOptions.explode)
+  labels?: Record<string, string>; // names for parts without a project page of their own
+  view?: { theta?: number; phi?: number }; // starting camera angle, degrees
 }
-const { src, alt } = Astro.props;
+const { src, alt, explode, labels = {}, view } = Astro.props;
+
+// Color key: each part number, linked to its project page when there is one ("A1005 · …").
+// Named by that page's title, else `labels`, else the CAD file's description or supplier number.
+const parts = readGlbParts(src);
+const projects = parts.length ? await getCollection('projects') : [];
+const key = parts.map((p) => {
+  const page = projects.find((q) => q.data.title.toUpperCase().startsWith(`${p.part} ·`));
+  const supplier = p.vendor && `McMaster-Carr ${p.vendor}`;
+  return {
+    ...p,
+    name: page?.data.title.split(' · ').slice(1).join(' · ') ?? labels[p.part] ?? p.label ?? supplier ?? '',
+    href: page ? projectHref(page) : p.vendor ? `https://www.mcmaster.com/${p.vendor}` : undefined,
+    external: !page && Boolean(p.vendor),
+  };
+});
+const placedCount = parts.reduce((n, p) => n + p.count, 0);
 ---
 
 <figure class="model-frame crop-marks">
@@ -14,6 +39,9 @@ const { src, alt } = Astro.props;
       class="cad-viewer"
       data-cad-viewer
       data-src={src}
+      data-explode={explode && JSON.stringify(explode)}
+      data-theta={view?.theta}
+      data-phi={view?.phi}
       role="img"
       aria-label={alt}
       tabindex="0"
@@ -25,6 +53,16 @@ const { src, alt } = Astro.props;
     </div>
 
     <div class="absolute right-3 top-3 flex gap-2">
+      {
+        parts.length > 0 && (
+          <button type="button" data-explode-toggle class="mv-btn" aria-label="Explode parts" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 9h6v6H9z" />
+              <path d="M3 3l3 3M21 3l-3 3M3 21l3-3M21 21l-3-3" stroke-linecap="round" />
+            </svg>
+          </button>
+        )
+      }
       <button type="button" data-edges class="mv-btn" aria-label="Hide edge lines" aria-pressed="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>
       </button>
@@ -40,9 +78,50 @@ const { src, alt } = Astro.props;
     </div>
   </div>
   <figcaption class="mt-3 flex flex-wrap justify-between gap-2 font-mono text-xs text-muted">
-    <span id="viewer-keys">Drag to rotate · scroll or pinch to zoom · right-drag to pan · arrow keys rotate</span>
+    <span id="viewer-keys">
+      Drag to rotate · scroll or pinch to zoom · right-drag to pan · arrow keys rotate{parts.length > 0 && ' · E explodes'}
+    </span>
     <a href={src} download class="text-accent hover:underline">Download .glb</a>
   </figcaption>
+  {
+    key.length > 0 && (
+      <div class="mt-4 rounded-md border border-line bg-surface">
+        <p class="label border-b border-line px-4 py-2.5">
+          Parts · {key.length} part numbers, {placedCount} pieces · hover to highlight
+        </p>
+        <ul class="grid py-1 sm:grid-cols-2" data-part-key>
+          {key.map((p) => {
+            const row = (
+              <>
+                <span class="size-3.5 shrink-0 rounded-sm border border-ink/20" style={`background:${p.color}`} aria-hidden="true" />
+                <span class="font-mono text-sm font-semibold">{p.part}</span>
+                <span class="min-w-0 truncate text-sm text-muted">{p.name}</span>
+                <span class="ml-auto shrink-0 font-mono text-xs text-muted">×{p.count}</span>
+              </>
+            );
+            const cls = 'flex items-center gap-3 px-4 py-1.5';
+            return (
+              <li data-part={p.part}>
+                {p.href ? (
+                  <a
+                    href={p.href}
+                    class={`${cls} transition hover:bg-paper hover:text-accent`}
+                    {...(p.external && { target: '_blank', rel: 'noopener', 'aria-label': `${p.part}, ${p.name} (opens McMaster-Carr in a new tab)` })}
+                  >
+                    {row}
+                  </a>
+                ) : (
+                  <span class={cls} tabindex="0">
+                    {row}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )
+  }
 </figure>
 
 <style>
@@ -92,6 +171,14 @@ const { src, alt } = Astro.props;
   .mv-btn[aria-pressed='false'] {
     color: var(--highlight);
   }
+  /* Explode is off by default, so it lights up when on rather than when off. */
+  .mv-btn[data-explode-toggle][aria-pressed='false'] {
+    color: var(--ink-muted);
+  }
+  .mv-btn[data-explode-toggle][aria-pressed='true'] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
   .mv-btn svg {
     width: 1.1rem;
     height: 1.1rem;
@@ -124,7 +211,27 @@ const { src, alt } = Astro.props;
     edges.addEventListener('click', () => toggle(edges, 'edges', ['Hide edge lines', 'Show edge lines']));
     frame.querySelector('[data-reset]')!.addEventListener('click', () => el.cadViewer?.reset());
 
-    // Keyboard: arrows rotate, +/- zoom, 0 resets.
+    // Assemblies: explode / collapse, and highlight a part from the color key.
+    const explode = frame.querySelector<HTMLButtonElement>('[data-explode-toggle]');
+    const toggleExplode = () => {
+      if (!explode) return;
+      const on = el.dataset.exploded !== 'true';
+      el.dataset.exploded = String(on);
+      explode.setAttribute('aria-pressed', String(on));
+      explode.setAttribute('aria-label', on ? 'Collapse parts' : 'Explode parts');
+      el.cadViewer?.setExploded(on);
+    };
+    explode?.addEventListener('click', toggleExplode);
+    frame.querySelectorAll<HTMLElement>('[data-part]').forEach((row) => {
+      const on = () => el.cadViewer?.highlight(row.dataset.part!);
+      const off = () => el.cadViewer?.highlight(null);
+      row.addEventListener('mouseenter', on);
+      row.addEventListener('mouseleave', off);
+      row.addEventListener('focusin', on);
+      row.addEventListener('focusout', off);
+    });
+
+    // Keyboard: arrows rotate, +/- zoom, 0 resets, E explodes.
     el.addEventListener('keydown', (e) => {
       const v = el.cadViewer;
       if (!v) return;
@@ -135,6 +242,7 @@ const { src, alt } = Astro.props;
         '=': () => v.zoomBy(0.85),
         '-': () => v.zoomBy(1.18),
         '0': () => v.reset(),
+        ...(explode && { e: toggleExplode, E: toggleExplode }),
       };
       if (keys[e.key]) {
         e.preventDefault();

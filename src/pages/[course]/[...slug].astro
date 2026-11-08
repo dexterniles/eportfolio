@@ -80,7 +80,7 @@ const featuredIn = await getGroupsForProject(project.id);
   {/* Main media: the 3D model, else the drawing (for drawing projects), else the cover image. */}
   {
     d.model ? (
-      <ModelViewer src={d.model} alt={d.coverAlt ?? `3D model of ${d.title}`} />
+      <ModelViewer src={d.model} alt={d.coverAlt ?? `3D model of ${d.title}`} explode={d.explode} labels={d.labels} view={d.view} />
     ) : d.pdf ? (
       <PdfDrawing pdf={d.pdf} title={d.title} fallback={d.cover} fallbackAlt={d.coverAlt} />
     ) : (

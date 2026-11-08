@@ -144,6 +144,16 @@
     border-radius: 0.25rem;
     background: var(--surface);
   }
+  /* Portfolio reflections: SolidWorks terms written *like this* get a highlighter tint (not an
+     underline, so they don't read as links). */
+  .reflection em {
+    font-weight: 600;
+    padding: 0.05em 0.25em;
+    border-radius: 0.2em;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
   .prose-blueprint blockquote {
     border-left: 3px solid var(--highlight);
     padding-left: 1em;

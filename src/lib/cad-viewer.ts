@@ -45,7 +45,21 @@ export interface CadViewerOptions {
   // Phones: let vertical swipes over the viewer scroll the page. Only suits a viewer that
   // just spins sideways (the home-page hero); otherwise touch drags belong to the model.
   swipeScroll?: boolean;
+  // Assemblies (multi-part .glb from scripts/step-to-glb.mjs): explode offsets in model axes
+  // (Y up), measured in assembly radii, keyed by part number ("A1012") or by one placed copy
+  // ("A1013#2", counted in file order). Parts without one slide out automatically; the biggest
+  // part stays put, like a SolidWorks fixed base.
+  explode?: Record<string, number[]>;
+  exploded?: boolean; // start exploded
   onProgress?: (fraction: number) => void;
+}
+
+export interface AssemblyPart {
+  part: string; // part number, e.g. A1005
+  label?: string; // description from the CAD file, e.g. Faceplate
+  vendor?: string; // supplier part number for purchased hardware
+  color: string; // hex
+  count: number; // how many are placed
 }
 
 export interface CadViewer {
@@ -56,6 +70,12 @@ export interface CadViewer {
   rotateBy(degrees: number): void;
   zoomBy(factor: number): void;
   readonly turntableAngle: number;
+  /** Parts of an assembly, in part-number order; empty for a single part. */
+  readonly parts: AssemblyPart[];
+  readonly exploded: boolean;
+  setExploded(on: boolean): void;
+  /** Fade every part except this one (null shows all). */
+  highlight(part: string | null): void;
 }
 
 // Feature edges: faces meeting at more than this angle get a line. Matches the
@@ -63,6 +83,11 @@ export interface CadViewer {
 const EDGE_ANGLE = 30;
 const EDGE_COLOR = 0x0f1726;
 const DEG = Math.PI / 180;
+const EXPLODE_MS = 800;
+const AUTO_EXPLODE = 0.3; // automatic explode distance, in assembly radii, plus half the part's length
+const FADED_OPACITY = 0.12;
+const UP = new Vector3(0, 1, 0);
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 // Silhouette lines: where a curved surface turns away from the viewer (the sides of a
 // cylinder), SolidWorks draws an outline even though there's no feature edge there. Those
@@ -201,6 +226,8 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     edges: true,
     edgeWidth: 1.25,
     swipeScroll: false,
+    explode: {},
+    exploded: false,
     // Unset options (undefined) must not overwrite the defaults above.
     ...Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined)),
   } as Required<Omit<CadViewerOptions, 'onProgress'>> & Pick<CadViewerOptions, 'onProgress'>;
@@ -261,38 +288,59 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
   const silhouettes: Silhouette[] = [];
   let edgesOn = opts.edges;
 
+  // Bounding box of meshes alone. Box3.setFromObject would also count the edge and silhouette
+  // lines attached to each mesh, and a silhouette starts out as zeros, which drags the box to
+  // the origin (a problem for assemblies placed far from it).
+  function meshBox(meshes: Mesh[]) {
+    const box = new Box3();
+    for (const m of meshes) {
+      m.updateWorldMatrix(true, false);
+      if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+      box.union(m.geometry.boundingBox!.clone().applyMatrix4(m.matrixWorld));
+    }
+    return box;
+  }
+
   // --- framing --------------------------------------------------------------
-  const home = { position: new Vector3(), target: new Vector3() };
+  // One framing per state: collapsed, plus exploded for an assembly. Centers are in turntable
+  // space, so they turn with the part.
+  interface Fit {
+    center: Vector3;
+    distance: number;
+  }
+  const fits: Fit[] = [];
   let radius = 1;
   let framed = false;
 
-  function frame() {
-    const box = new Box3().setFromObject(turntable);
+  // Fit a bounding sphere into the narrower of the vertical/horizontal field of view,
+  // so a spinning part never clips (matters for the near-square hero viewer).
+  function fitBox(box: Box3): Fit {
     const sphere = box.getBoundingSphere(new Sphere());
-    radius = sphere.radius || 1;
-    const center = sphere.center;
-    // Fit the bounding sphere into the narrower of the vertical/horizontal field of view,
-    // so a spinning part never clips (matters for the near-square hero viewer).
     const vFov = camera.fov * DEG;
     const hFov = 2 * Math.atan(Math.tan(vFov / 2) * (camera.aspect || 1));
-    const distance = (radius / Math.sin(Math.min(vFov, hFov) / 2)) * 0.92;
-    const theta = opts.theta * DEG;
-    const phi = opts.phi * DEG;
-    home.target.copy(center);
-    home.position.set(
-      center.x + distance * Math.sin(phi) * Math.sin(theta),
-      center.y + distance * Math.cos(phi),
-      center.z + distance * Math.sin(phi) * Math.cos(theta),
-    );
-    camera.near = distance / 100;
-    camera.far = distance * 10;
+    return { center: sphere.center, distance: ((sphere.radius || 1) / Math.sin(Math.min(vFov, hFov) / 2)) * 0.92 };
+  }
+  const fitTarget = (fit: Fit) => fit.center.clone().applyAxisAngle(UP, turntable.rotation.y);
+  const currentFit = () => fits[explodeTarget && fits.length > 1 ? 1 : 0];
+
+  function frame(collapsed: Box3, exploded?: Box3) {
+    fits.length = 0;
+    fits.push(fitBox(collapsed));
+    if (exploded) fits.push(fitBox(exploded));
+    const all = exploded ? collapsed.clone().union(exploded) : collapsed;
+    const sphere = all.getBoundingSphere(new Sphere());
+    radius = sphere.radius || 1;
+    const center = sphere.center;
+    const far = Math.max(...fits.map((f) => f.distance));
+    camera.near = far / 100;
+    camera.far = far * 10;
     camera.updateProjectionMatrix();
-    controls.minDistance = distance * 0.35;
-    controls.maxDistance = distance * 3;
+    controls.minDistance = fits[0].distance * 0.35;
+    controls.maxDistance = far * 3;
     framed = true;
 
-    // Shadow catcher just under the part, light from above-front.
-    ground.position.set(center.x, box.min.y - radius * 0.002, center.z);
+    // Shadow catcher just under the (collapsed) part, light from above-front.
+    ground.position.set(center.x, collapsed.min.y - radius * 0.002, center.z);
     ground.scale.setScalar(radius * 4);
     key.position.set(center.x + radius * 0.25, center.y + radius * 5, center.z + radius * 0.5);
     key.target.position.copy(center);
@@ -306,10 +354,118 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
   }
 
   function reset() {
-    camera.position.copy(home.position);
-    controls.target.copy(home.target);
+    if (explodeAnim) {
+      explodeAnim = null;
+      explodeT = explodeTarget;
+      applyExplode();
+    }
     turntable.rotation.y = 0;
+    const fit = currentFit();
+    if (fit) {
+      const theta = opts.theta * DEG;
+      const phi = opts.phi * DEG;
+      controls.target.copy(fit.center);
+      camera.position.set(
+        fit.center.x + fit.distance * Math.sin(phi) * Math.sin(theta),
+        fit.center.y + fit.distance * Math.cos(phi),
+        fit.center.z + fit.distance * Math.sin(phi) * Math.cos(theta),
+      );
+    }
     if (framed) controls.update();
+    requestRender();
+  }
+
+  // --- assemblies: parts, explode, highlight ----------------------------------
+  interface Placed {
+    mesh: Mesh;
+    part: string;
+    from: Vector3; // collapsed center, model space
+    offset: Vector3; // collapsed → exploded
+    // The mesh's own position from the file: compression (quantization) stores each part's
+    // placement there, so the explode adds to it rather than replacing it.
+    base: Vector3;
+  }
+  const placed: Placed[] = [];
+  const parts: AssemblyPart[] = [];
+  let explodeT = opts.exploded ? 1 : 0; // 0 collapsed … 1 exploded
+  let explodeTarget = opts.exploded ? 1 : 0;
+  let explodeAnim: { start: number; from: number; fromTarget: Vector3; toTarget: Vector3; distance: [number, number] } | null = null;
+  let highlighted: string | null = null;
+  const explodeLineMaterial = new LineMaterial({ color: EDGE_COLOR, linewidth: 1, transparent: true, opacity: 0.55, dashed: true });
+  const explodeLines = new LineSegments2(new LineSegmentsGeometry(), explodeLineMaterial);
+  explodeLines.raycast = () => {};
+  explodeLines.frustumCulled = false;
+
+  // Each part's explode offset: from the front matter, or automatic. Automatic parts move away
+  // from the biggest part; long parts (pins, screws, shafts) slide out along their length, the
+  // way they'd be pulled from a hole. Nothing drops below the ground.
+  function planExplode(floor: number, size: number) {
+    const boxes = placed.map((p) => meshBox([p.mesh]));
+    const dims = boxes.map((b) => b.getSize(new Vector3()));
+    const volume = (d: Vector3) => Math.max(d.x, 1e-6) * Math.max(d.y, 1e-6) * Math.max(d.z, 1e-6);
+    const anchor = dims.reduce((best, d, i) => (volume(d) > volume(dims[best]) ? i : best), 0);
+    const origin = boxes[anchor].getCenter(new Vector3());
+    const copies = new Map<string, number>();
+    placed.forEach((p, i) => {
+      const n = (copies.get(p.part) ?? 0) + 1;
+      copies.set(p.part, n);
+      const custom = opts.explode[`${p.part}#${n}`] ?? opts.explode[p.part];
+      if (custom) p.offset.fromArray(custom).multiplyScalar(size);
+      else if (i !== anchor) {
+        const away = p.from.clone().sub(origin);
+        const d = dims[i].toArray();
+        const [long, mid] = [...d].sort((a, b) => b - a);
+        if (long > mid * 1.6) {
+          const axis = d.indexOf(long);
+          p.offset.set(0, 0, 0).setComponent(axis, Math.sign(away.getComponent(axis)) || 1);
+        } else p.offset.copy(away.lengthSq() ? away.normalize() : UP);
+        p.offset.multiplyScalar(size * AUTO_EXPLODE + long * 0.5);
+      }
+      p.offset.y = Math.max(p.offset.y, floor - boxes[i].min.y);
+    });
+    explodeLineMaterial.dashSize = size * 0.03;
+    explodeLineMaterial.gapSize = size * 0.02;
+  }
+
+  // Place the parts at the current explode amount and redraw the explode lines.
+  function applyExplode() {
+    const e = ease(explodeT);
+    const segments: number[] = [];
+    for (const p of placed) {
+      p.mesh.position.copy(p.base).addScaledVector(p.offset, e);
+      if (e > 0.01 && p.offset.lengthSq() > 0) {
+        segments.push(...p.from.toArray(), ...p.from.clone().addScaledVector(p.offset, e).toArray());
+      }
+    }
+    explodeLines.visible = segments.length > 0;
+    if (segments.length) {
+      explodeLines.geometry.dispose();
+      explodeLines.geometry = new LineSegmentsGeometry().setPositions(segments);
+      explodeLines.computeLineDistances();
+    }
+    updateShadows();
+  }
+
+  // Only parts resting in place cast shadows: one lifted into the air would leave a stray
+  // smudge on the floor (SolidWorks shows none). Faded parts don't cast either.
+  function updateShadows() {
+    const resting = ease(explodeT) < 0.02;
+    for (const p of placed) {
+      p.mesh.castShadow = (resting || p.offset.lengthSq() === 0) && (!highlighted || p.part === highlighted);
+    }
+  }
+
+  function applyHighlight() {
+    for (const p of placed) {
+      const on = !highlighted || p.part === highlighted;
+      const m = p.mesh.material as MeshStandardMaterial;
+      m.transparent = !on;
+      m.opacity = on ? 1 : FADED_OPACITY;
+      m.depthWrite = on;
+      p.mesh.children.forEach((c) => (c.visible = on && edgesOn));
+    }
+    explodeLineMaterial.opacity = highlighted ? 0.15 : 0.55;
+    updateShadows();
     requestRender();
   }
 
@@ -349,13 +505,43 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
             silhouettes.push(silhouette);
           }
         });
+        // Assemblies: every mesh tagged with a part number (scripts/step-to-glb.mjs) is one placed
+        // part. Each gets its own material so fading one doesn't fade parts that share a color.
+        meshes.forEach((mesh) => {
+          const part = mesh.userData.part as string | undefined;
+          if (!part) return;
+          mesh.material = (mesh.material as Material).clone();
+          placed.push({ mesh, part, from: meshBox([mesh]).getCenter(new Vector3()), offset: new Vector3(), base: mesh.position.clone() });
+          const known = parts.find((p) => p.part === part);
+          if (known) known.count++;
+          else parts.push({ part, label: mesh.userData.label, vendor: mesh.userData.vendor, color: mesh.userData.color, count: 1 });
+        });
+        parts.sort((a, b) => a.part.localeCompare(b.part, undefined, { numeric: true }));
+        if (placed.length < 2) placed.length = parts.length = 0;
+
+        // Plan the explode in model space, before the model moves onto the turntable.
+        const collapsed = meshBox(meshes);
+        if (placed.length) planExplode(collapsed.min.y, collapsed.getBoundingSphere(new Sphere()).radius);
+
         // Center the part on the turntable axis.
-        const box = new Box3().setFromObject(model);
-        const c = box.getCenter(new Vector3());
+        const c = collapsed.getCenter(new Vector3());
         model.position.x -= c.x;
         model.position.z -= c.z;
         turntable.add(model);
-        frame();
+        collapsed.translate(model.position);
+        if (placed.length) {
+          model.add(explodeLines);
+          // Measure the exploded state, then settle on the starting one.
+          const t = explodeT;
+          explodeT = 1;
+          applyExplode();
+          const exploded = meshBox(meshes);
+          explodeT = t;
+          applyExplode();
+          frame(collapsed, exploded);
+        } else {
+          frame(collapsed);
+        }
         // Compile shaders in the background (where supported) instead of freezing the page
         // on the first frame; render either way.
         renderer
@@ -388,6 +574,7 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     edgeMaterial.resolution.set(w, h);
+    explodeLineMaterial.resolution.set(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     requestRender();
@@ -407,6 +594,19 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     const spinning = autoRotate && now - lastInteraction > opts.rotateDelay;
     if (spinning) {
       turntable.rotation.y += opts.rotateSpeed * DEG * dt;
+      dirty = true;
+    }
+    if (explodeAnim) {
+      // Parts move, and the camera eases to the other framing along its current direction.
+      const k = Math.min((now - explodeAnim.start) / EXPLODE_MS, 1);
+      explodeT = explodeAnim.from + (explodeTarget - explodeAnim.from) * k;
+      applyExplode();
+      const e = ease(k);
+      const dir = camera.position.clone().sub(controls.target).normalize();
+      controls.target.lerpVectors(explodeAnim.fromTarget, explodeAnim.toTarget, e);
+      const [d0, d1] = explodeAnim.distance;
+      camera.position.copy(controls.target).addScaledVector(dir, d0 + (d1 - d0) * e);
+      if (k === 1) explodeAnim = null;
       dirty = true;
     }
     if (framed) controls.update(); // applies damping; fires 'change' while still moving
@@ -443,6 +643,7 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     setEdges(on) {
       edgesOn = on;
       edgeLines.forEach((l) => (l.visible = on));
+      if (highlighted) applyHighlight(); // faded parts keep their edges hidden
       requestRender();
     },
     rotateBy(degrees) {
@@ -460,6 +661,34 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     },
     get turntableAngle() {
       return turntable.rotation.y / DEG;
+    },
+    parts,
+    get exploded() {
+      return explodeTarget === 1;
+    },
+    setExploded(on) {
+      const target = on ? 1 : 0;
+      if (!placed.length || !framed || explodeTarget === target) return;
+      // Keep the visitor's zoom: scale the new framing's distance by how far they've zoomed.
+      const from = fits[explodeTarget];
+      const to = fits[target];
+      const distance = camera.position.distanceTo(controls.target);
+      const next = Math.min(Math.max((to.distance * distance) / from.distance, controls.minDistance), controls.maxDistance);
+      explodeTarget = target;
+      const instant = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      explodeAnim = {
+        start: performance.now() - (instant ? EXPLODE_MS : 0),
+        from: explodeT,
+        fromTarget: controls.target.clone(),
+        toTarget: fitTarget(to),
+        distance: [distance, next],
+      };
+      requestRender();
+    },
+    highlight(part) {
+      if (!placed.length || highlighted === part) return;
+      highlighted = part;
+      applyHighlight();
     },
   };
 }

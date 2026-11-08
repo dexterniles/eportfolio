@@ -1,28 +1,21 @@
 ---
-title: Engineering Drawings & Documentation
+title: Drawings & Templates
 summary: Part and assembly drawings with section, detail, and exploded views, on my own title-block template.
+why: The drawing is the document the shop, inspection, and purchasing all work from, so a complete, standards-based sheet lets them act without asking what the designer meant.
 competencies: [information-management]
 outcomes: [detail-drawings, templates]
 skills:
-  - Third-angle projection and standard view layout
-  - Full section and detail views
+  - A custom template with a completed title block
+  - Third-angle standard views and an isometric view
+  - Section and detail views
+  - Dimensioning from a datum corner
   - Assembly drawings with an exploded view and a bill of materials
-  - Dimensioning each feature once, in its clearest view
-  - A custom title-block template (school, logo, revision, material, scale)
   - Choosing sheet size and scale
 projects:
+  - cad111/drawings/c1000-drawing
   - cad111/drawings/cad111-0001-drawing
   - cad111/drawings/pressure-plate-drawing
-  - cad111/drawings/c1000-drawing
-order: 3
+order: 4
 ---
 
-A model shows what a part looks like. A drawing tells someone else how to make it. These three sheets cover the main kinds of drawings:
-
-- a **detail drawing** of a single part (the Stepped Channel Block), with dimensioned top, front, and right-side views;
-- a part drawing that adds a **full section** and an enlarged **detail view** to show the Pressure Plate's internal features;
-- an **assembly drawing** of the C-clamp, with a section through the screw, an exploded isometric view, and a **bill of materials** that ties each item back to its part number.
-
-The two newest drawings use a template I built myself: a Bristol Community College title block with my DN logo, with fields for the title, drawing number, revision, sheet size, scale, material, author, and date. Dimensions are placed so that every feature is defined once, in the view where it reads most clearly.
-
-**Why it matters on the job:** the drawing is the document a machinist, an inspector, and a purchasing manager all work from. The machinist needs the dimensions, the inspector needs to know what to check, and purchasing needs the bill of materials. A clear, complete, standards-based drawing lets each of them make decisions without having to ask the designer what was meant. That is information management: taking the design and organizing it into a record that other people can rely on.
+I set up my own *Drawing Template* with a Bristol Community College *Title Block* and my DN logo, then used it for part and assembly drawings in *Third Angle Projection*. For the CAD111-0001 block I placed the *Standard Views* plus an *Isometric View* and dimensioned each feature once from a *Datum* corner. The Pressure Plate drawing adds a *Section View* (A-A) and an enlarged *Detail View* at 1:1, and the C1000 C-Clamp assembly drawing pairs a section with an exploded isometric view and a *Bill of Materials*.

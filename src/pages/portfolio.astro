@@ -20,7 +20,7 @@ const exampleCount = groups.reduce((n, g) => n + g.projects.length, 0);
 
 <Base
   title="Portfolio"
-  description={`Selected CAD work by ${site.name}, grouped by skill set: parametric modeling, components designed to fit, and engineering drawings.`}
+  description={`Selected CAD work by ${site.name}, grouped by SolidWorks skill: sketching and simple features, complex features, assemblies, and drawings.`}
   sheet="Portfolio"
 >
   <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">
@@ -38,9 +38,9 @@ const exampleCount = groups.reduce((n, g) => n + g.projects.length, 0);
     <div class="mt-4 max-w-3xl space-y-4 text-lg text-muted">
       <p>
         I'm {site.name}, a Mechanical Engineering transfer student at {site.school}. This page collects my
-        strongest CAD work so far, grouped by the skill set behind it. Each group explains what I learned producing
-        the work and how those skills carry over to an engineering team: building models that can change, making
-        parts that fit together, and documenting designs so other people can build them.
+        CAD work so far, grouped by the SolidWorks skills behind it. Each group has a short reflection on how I used
+        those skills to make the work, and why they matter to an engineering team: building models that can change,
+        making parts that fit together, and documenting designs so other people can build them.
       </p>
       <p>
         Every example opens to an interactive 3D model or a full drawing sheet, so you can inspect the work directly.
@@ -141,8 +141,14 @@ const exampleCount = groups.reduce((n, g) => n + g.projects.length, 0);
           </div>
 
           <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <article class="prose-blueprint max-w-3xl">
-              <Content />
+            <article class="max-w-3xl">
+              <h3 class="label">Reflection</h3>
+              <div class="reflection prose-blueprint mt-3">
+                <Content />
+              </div>
+              <p class="mt-5 border-l-2 border-accent pl-4 text-muted">
+                <strong class="font-semibold text-ink">Why it matters:</strong> {d.why}
+              </p>
             </article>
             <aside class="h-fit space-y-5 rounded-md border border-line bg-surface p-5">
               {d.skills.length > 0 && (

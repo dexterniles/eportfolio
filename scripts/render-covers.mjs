@@ -1,6 +1,7 @@
 // Renders the card/cover images for projects: 3D models through the site's own viewer (edge
 // lines, contact shadow, default angle) and drawings from page 1 of their PDF, as 1200×800
-// transparent PNGs that match the existing covers.
+// transparent PNGs that match the existing covers. Assemblies are shown exploded, using the
+// project's `explode:` and `view:` front matter.
 //
 //   npm run covers                    render covers that don't exist yet
 //   npm run covers -- v1003 c1001     only these projects (Markdown file names)
@@ -12,6 +13,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import { parse } from 'yaml';
 
 const BASE = 'http://localhost:4321';
 const W = 1200, H = 800;
@@ -25,14 +27,12 @@ const walk = (dir) =>
     const path = join(dir, e.name);
     if (e.isDirectory()) return walk(path);
     if (!/\.mdx?$/.test(e.name)) return;
-    const front = readFileSync(path, 'utf8').split(/^---\s*$/m)[1] ?? '';
-    const field = (k) => front.match(new RegExp(`^${k}:\\s*(.+?)\\s*$`, 'm'))?.[1].replace(/^['"]|['"]$/g, '');
+    const { model, pdf, cover, explode, view } = parse(readFileSync(path, 'utf8').split(/^---\s*$/m)[1] ?? '') ?? {};
     const name = basename(path).replace(/\.mdx?$/, '');
-    const model = field('model'), pdf = field('pdf'), cover = field('cover');
     if (!model && !pdf) return;
     if (only.length && !only.includes(name.toLowerCase())) return;
     const out = resolve(dirname(path), cover ?? `./images/${name}.png`);
-    projects.push({ name, path, model, pdf, out, coverSet: Boolean(cover) });
+    projects.push({ name, path, model, pdf, explode, view, out, coverSet: Boolean(cover) });
   });
 walk('src/content/projects');
 
@@ -63,12 +63,17 @@ for (const p of todo) {
   }, { W, H });
 
   if (p.model) {
-    await page.evaluate(async (src) => {
+    await page.evaluate(async ({ src, explode, view }) => {
       const { createCadViewer } = await import('/src/lib/cad-viewer.ts');
       const stage = document.getElementById('stage');
       stage.style.display = 'block';
-      await createCadViewer(stage, { src, autoRotate: false, zoom: false, pan: false }).loaded;
-    }, p.model);
+      // `exploded` only affects assemblies; a single part renders as before.
+      const options = { src, autoRotate: false, zoom: true, pan: false, exploded: true, explode, theta: view?.theta, phi: view?.phi };
+      const viewer = createCadViewer(stage, options);
+      await viewer.loaded;
+      // The exploded framing leaves room to orbit; a card image can sit tighter.
+      if (viewer.parts.length) viewer.zoomBy(0.78);
+    }, { src: p.model, explode: p.explode, view: p.view });
     await page.waitForTimeout(1500); // shaders compile asynchronously and the camera eases into place
   } else {
     await page.evaluate(async ({ pdf, W, H }) => {

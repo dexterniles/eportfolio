@@ -1,5 +1,6 @@
 // Minimal binary glTF (.glb) writer. Each part becomes one mesh primitive with its own material.
-// part: { name, color: [r,g,b], metallic?, roughness?, positions: number[], normals: number[], indices: number[] }
+// part: { name, color: [r,g,b], metallic?, roughness?, positions: number[], normals: number[], indices: number[], extras? }
+// `extras` (any JSON) is stored on the part's node; three.js exposes it as the mesh's userData.
 
 const pad4 = (b, fill = 0) => Buffer.concat([b, Buffer.alloc((4 - (b.length % 4)) % 4, fill)]);
 const f32 = (a) => Buffer.from(new Float32Array(a).buffer);
@@ -48,7 +49,7 @@ export function buildGlb(parts) {
     asset: { version: '2.0', generator: 'eportfolio scripts/lib/glb.mjs' },
     scene: 0,
     scenes: [{ nodes: parts.map((_, i) => i) }],
-    nodes: parts.map((p, i) => ({ name: p.name, mesh: i })),
+    nodes: parts.map((p, i) => ({ name: p.name, mesh: i, ...(p.extras && { extras: p.extras }) })),
     meshes,
     materials,
     buffers: [{ byteLength: bin.length }],
