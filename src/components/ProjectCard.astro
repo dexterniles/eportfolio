@@ -15,7 +15,7 @@ const badges = [d.model && '3D', d.code && `${d.code.files.length} file${d.code.
   href={projectHref(project)}
   class="group flex h-full flex-col overflow-hidden rounded-md border-2 border-line bg-surface transition hover:-translate-y-1 hover:border-accent hover:shadow-[6px_6px_0_var(--accent)]"
 >
-  <div class="relative aspect-[3/2] overflow-hidden border-b border-line bg-paper">
+  <div class="aspect-[3/2] overflow-hidden border-b border-line bg-paper">
     {
       d.cover ? (
         <Image
@@ -28,13 +28,6 @@ const badges = [d.model && '3D', d.code && `${d.code.files.length} file${d.code.
         <div class="grid h-full place-items-center text-accent/70">
           <SectionIcon section={d.section} class="w-1/2 transition duration-500 group-hover:scale-110" />
         </div>
-      )
-    }
-    {
-      d.placeholder && (
-        <span class="absolute left-3 top-3 rounded bg-highlight px-2 py-0.5 font-mono text-[0.65rem] font-bold uppercase tracking-widest text-paper">
-          Placeholder
-        </span>
       )
     }
   </div>

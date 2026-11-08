@@ -1,7 +1,6 @@
 // Everything personal about the site lives here. Edit freely.
 export const site = {
   name: 'Dexter Niles',
-  initials: 'DN',
   program: 'Engineering Transfer Path to UMass Dartmouth — Mechanical Engineering',
   school: 'Bristol Community College',
   tagline:

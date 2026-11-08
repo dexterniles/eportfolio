@@ -21,7 +21,6 @@ const projects = defineCollection({
       pdf: z.string().optional(), // path under /public, e.g. /drawings/bracket.pdf
       // Source files shown in the code viewer: a folder under /public plus the files to show, in tab order.
       code: z.object({ dir: z.string(), files: z.array(z.string()).min(1) }).optional(),
-      placeholder: z.boolean().default(false),
       order: z.number().default(0),
     }),
 });

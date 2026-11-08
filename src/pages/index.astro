@@ -10,7 +10,7 @@ import { courses } from '../data/courses';
 import { getCompetency } from '../data/competencies';
 import { getGroupProjects, getShowcaseGroups, zones } from '../lib/showcase';
 
-const projects = await getCollection('projects', (p) => !p.data.placeholder);
+const projects = await getCollection('projects');
 const countFor = (slug: string) => projects.filter((p) => p.data.course === slug).length;
 const activeSectionsFor = (slug: string) => [...new Set(projects.filter((p) => p.data.course === slug).map((p) => p.data.section))];
 // Courses with project sections get big cards; the rest are listed compactly as outline courses.
