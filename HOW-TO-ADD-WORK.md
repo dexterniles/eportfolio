@@ -13,7 +13,8 @@ Copy [`templates/project.md`](templates/project.md) into the right folder, for e
 `src/content/projects/cad111/models/spur-gear.md` (create the folder if it doesn't exist yet), then fill it in.
 It includes suggested headings for each section.
 
-After adding a new file or folder, restart the dev server (`npx astro dev stop`, then `npm run dev`) so the page shows up.
+After adding a new file or folder, restart the dev server (`npx astro dev stop`, then `npx astro dev --background`
+or `npm run dev`) so the page shows up.
 
 ## 2. Fill in the front matter
 
@@ -31,6 +32,9 @@ coverAlt: Rendered spur gear with 24 teeth
 gallery:                            # optional extra images
   - src: ./images/gear-sketch.png
     alt: Fully defined sketch of the gear profile
+code:                               # optional source files for code projects, shown in tabs
+  dir: /code/cis158/uppercase       #   a folder under public/
+  files: [main.c, Makefile]         #   the files to show, in tab order
 order: 3                 # position within the section (lower comes first)
 ---
 
@@ -66,7 +70,9 @@ The viewer needs a `.glb` file in `public/models/`. The dependable route from ei
    If the model shows up lying on its side, run it again with `--z-up` on the end.
 
 **Tip:** STL has no colors, so an assembly comes through in a single color. If your version of SolidWorks or Fusion
-offers **glTF / GLB** directly in its export list, use that instead: it keeps each part's appearance. Drop the file into `public/models/`.
+offers **glTF / GLB** directly in its export list, use that instead: it keeps each part's appearance. Drop the file into
+`public/models/` and run `npm run compress-models` to shrink it for the web. (A STEP-based route with one color per part
+and an exploded view is planned; see item 17 in [IMPROVEMENTS.md](IMPROVEMENTS.md).)
 
 Keep models under ~10 MB so they load quickly on phones.
 
@@ -92,11 +98,13 @@ the `cover:` line to add if it's missing. The first time on a new computer, run 
 
 ## 6. Feature it on the Portfolio page (optional)
 
-The [Portfolio page](https://dexterniles.vercel.app/portfolio) groups your best work by skill set. Each group is a
+The [Portfolio page](https://dexterniles.vercel.app/portfolio) groups your best work. Each group is a
 Markdown file in `src/content/showcase/`: the front matter lists the competencies, course outcomes, skills, and
 `projects` (by path, e.g. `cad111/models/spur-gear`), and the body is the narrative. A group needs at least 3
 projects to publish; until then, set `draft: true` and it only shows on the dev server. Competency and outcome
 wording lives in `src/data/competencies.ts`.
+
+A project in a group automatically shows a "Featured in" link back to the Portfolio page.
 
 ## 7. Preview and publish
 
@@ -108,6 +116,6 @@ git add -A && git commit -m "Add spur gear" && git push   # Vercel deploys autom
 
 ## Personal info, résumé, and courses
 
-- Name, intro, emails, LinkedIn, résumé: `src/site.config.ts`
+- Name, tagline, intro, tools list, emails, LinkedIn, résumé: `src/site.config.ts`
   (for the résumé, put the PDF at `public/resume.pdf` and set `resume: '/resume.pdf'`)
 - Add a course or section: `src/data/courses.ts`, then create a matching folder under `src/content/projects/`

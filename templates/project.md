@@ -14,8 +14,15 @@ summary: One or two sentences shown on the card and at the top of the page.
 # gallery:
 #   - src: ./images/gear-sketch.png
 #     alt: Fully defined sketch of the gear profile
+# code:                                 # optional source files for code projects (folder under public/)
+#   dir: /code/cis158/uppercase
+#   files: [main.c, Makefile]
 order: 1                 # position within the section (lower comes first)
 ---
+
+<!-- Models: start with a spec table (Part number, Overall size in mm and in, Assembly, Software),
+     like the existing parts. Then run `npm run covers -- <name>` to render the card image. -->
+
 
 <!-- Pick the headings that fit. Suggestions by section: -->
 

@@ -7,9 +7,9 @@ this README and the empty folders are tracked by Git.
 
 | Folder | Drop here | Where it ends up |
 | --- | --- | --- |
-| `models/` | SolidWorks / Fusion 360 exports: `.STL` (or `.glb`, `.step`) | Source STL → `cad/`, web model → `public/models/`, plus a cover render and a page under the right course section |
-| `drawings/` | Drawing PDFs exported from SolidWorks | `public/drawings/`, plus a cover render and a page under Drawings |
-| `code/` | One folder per assignment with its `.c`/`.h` files, `Makefile`, and sample data | `public/code/<course>/<name>/` after removing build files (`.o`, binaries), plus a sample run and a page |
+| `models/` | SolidWorks / Fusion 360 exports: `.STL` for parts (or `.glb`); `.step` for assemblies | Source file → `cad/`, web model → `public/models/`, plus a cover render and a page under the right course section. Assemblies become multi-color, explodable models once that pipeline ships (IMPROVEMENTS item 17) |
+| `drawings/` | Drawing and drawing-template PDFs exported from SolidWorks | `public/drawings/`, plus a cover render and a page under Drawings (cross-linked to the matching model) |
+| `code/` | One folder per assignment with its `.c`/`.h` files, `Makefile`, and sample data | `public/code/<course>/<name>/` after removing build files (`.o`, binaries), plus a page. Sample runs need gcc and make, which this PC doesn't have yet, so include a pasted run if you want one |
 | `images/` | Screenshots, photos, renders (`.png`, `.jpg`, `.webp`, `.svg`) | Next to the project they belong to, or `src/assets/` for site-wide images |
 | `documents/` | Syllabi, reports, lab write-ups, a résumé (`.pdf`, `.docx`) | Used as source material; only what you choose to publish gets copied into `public/` |
 

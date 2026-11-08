@@ -8,6 +8,15 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Project notes
+
+- Read [README.md](README.md) for the layout and commands, and [HOW-TO-ADD-WORK.md](HOW-TO-ADD-WORK.md) and
+  [inbox/README.md](inbox/README.md) before processing new work.
+- [IMPROVEMENTS.md](IMPROVEMENTS.md) is the tracking list: check items off and add a dated note when something ships.
+- Restart the dev server after adding new content files or collections; it doesn't pick them up on its own.
+- `npm run covers` uses the dev server and Playwright's Chromium (`npx playwright install chromium` on a new machine).
+- On Windows Git Bash, set `MSYS_NO_PATHCONV=1` when passing URL paths like `/portfolio` as command arguments.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
