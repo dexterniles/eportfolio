@@ -9,6 +9,7 @@ Personal engineering e-Portfolio for my coursework at Bristol Community College 
 | `npm run dev` | Local preview at http://localhost:4321 |
 | `npm run build` | Production build into `dist/` |
 | `npm run stl2glb -- in.stl public/models/out.glb [#color] [--z-up]` | Convert a CAD STL export to a compressed web 3D model |
+| `npm run step2glb -- in.step public/models/out.glb` | Convert a STEP assembly to a multi-color model the viewer can explode |
 | `npm run covers [-- name] [--force]` | Render card images for models (3D viewer) and drawings (page 1 of the PDF) |
 | `npm run compress-models` | Compress any `.glb` in `public/models/` that isn't compressed yet |
 | `npm run og` | Rebuild the link-preview image (`public/og.png`) |
@@ -24,7 +25,7 @@ Personal engineering e-Portfolio for my coursework at Bristol Community College 
 | Competencies and course outcomes | `src/data/competencies.ts` |
 | Name, intro, contact info | `src/site.config.ts` |
 | 3D models / drawing PDFs | `public/models/` / `public/drawings/` |
-| Source CAD exports (STL) | `cad/` |
+| Source CAD exports (STL, STEP) | `cad/` |
 | Logo source files | `src/assets/logo/` |
 
 ## Docs

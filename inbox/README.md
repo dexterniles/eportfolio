@@ -7,7 +7,7 @@ this README and the empty folders are tracked by Git.
 
 | Folder | Drop here | Where it ends up |
 | --- | --- | --- |
-| `models/` | SolidWorks / Fusion 360 exports: `.STL` for parts (or `.glb`); `.step` for assemblies | Source file → `cad/`, web model → `public/models/`, plus a cover render and a page under the right course section. Assemblies become multi-color, explodable models once that pipeline ships (IMPROVEMENTS item 17) |
+| `models/` | SolidWorks / Fusion 360 exports: `.STL` for parts (or `.glb`); `.step` for assemblies | Source file → `cad/`, web model → `public/models/`, plus a cover render and a page under the right course section. Assemblies (STEP AP214, exported collapsed) become multi-color models with an Explode button; a screenshot of your SolidWorks exploded view helps match its directions |
 | `drawings/` | Drawing and drawing-template PDFs exported from SolidWorks | `public/drawings/`, plus a cover render and a page under Drawings (cross-linked to the matching model) |
 | `code/` | One folder per assignment with its `.c`/`.h` files, `Makefile`, and sample data | `public/code/<course>/<name>/` after removing build files (`.o`, binaries), plus a page. Sample runs need gcc and make, which this PC doesn't have yet, so include a pasted run if you want one |
 | `images/` | Screenshots, photos, renders (`.png`, `.jpg`, `.webp`, `.svg`) | Next to the project they belong to, or `src/assets/` for site-wide images |

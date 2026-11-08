@@ -69,12 +69,33 @@ The viewer needs a `.glb` file in `public/models/`. The dependable route from ei
    ```
    If the model shows up lying on its side, run it again with `--z-up` on the end.
 
-**Tip:** STL has no colors, so an assembly comes through in a single color. If your version of SolidWorks or Fusion
-offers **glTF / GLB** directly in its export list, use that instead: it keeps each part's appearance. Drop the file into
-`public/models/` and run `npm run compress-models` to shrink it for the web. (A STEP-based route with one color per part
-and an exploded view is planned; see item 17 in [IMPROVEMENTS.md](IMPROVEMENTS.md).)
+**Tip:** for a single part, STL is all you need. For assemblies, use STEP instead (next section): an STL merges every
+part into one mesh, so the site can't color or explode them.
 
 Keep models under ~10 MB so they load quickly on phones.
+
+### Assemblies (STEP → exploded, multi-color model)
+
+1. In SolidWorks, open the assembly **collapsed**, then **File → Save As → STEP AP214 (\*.step)**.
+2. Convert it (keeps the source file in `cad/`):
+   ```sh
+   npm run step2glb -- "cad/A1000 - Assembly.STEP" public/models/a1000.glb
+   ```
+   Each part number gets its own color; purchased hardware (names like `A1010_91744A537`) shares one gray, and
+   its thread detail is simplified to keep the file small. `--color A1005=#d8a24a` overrides a color.
+3. Make the page in `src/content/projects/<course>/assemblies/` with `model:` pointing at the file. The viewer adds an
+   **Explode** button (and the **E** key), dashed explode lines, and a color key that links each part to its page.
+4. Optional front matter:
+   ```yaml
+   view: { theta: 60, phi: 72 }   # starting camera angle, degrees
+   explode:                       # [x, y, z] in assembly radii, Y up; parts left out slide out automatically
+     A1002: [0, 0.75, 0]          #   by part number…
+     "A1013#2": [0, 0, 0.45]      #   …or one placed copy, counted in file order
+   labels:                        # names in the color key for parts without their own page
+     A1001: Frame
+   ```
+5. Render the cover after the dev server has seen the new page (`npm run covers -- a1000`). Assembly covers are
+   shown exploded. If the page errors on a missing cover image first, that's expected: render it, and it clears.
 
 ## 4. Add a drawing PDF
 
@@ -98,11 +119,15 @@ the `cover:` line to add if it's missing. The first time on a new computer, run 
 
 ## 6. Feature it on the Portfolio page (optional)
 
-The [Portfolio page](https://dexterniles.vercel.app/portfolio) groups your best work. Each group is a
-Markdown file in `src/content/showcase/`: the front matter lists the competencies, course outcomes, skills, and
-`projects` (by path, e.g. `cad111/models/spur-gear`), and the body is the narrative. A group needs at least 3
-projects to publish; until then, set `draft: true` and it only shows on the dev server. Competency and outcome
-wording lives in `src/data/competencies.ts`.
+The [Portfolio page](https://dexterniles.vercel.app/portfolio) groups your work by SolidWorks skill. Each group is
+a Markdown file in `src/content/showcase/`: the front matter has a one-line `summary`, a one-line `why` (why the skill
+matters on the job), the competencies, course outcomes, skills, and `projects` (by path, e.g.
+`cad111/models/spur-gear`). The body is the group's **reflection**: 3–4 sentences on how you used the skills, with
+SolidWorks terms written `*Extruded Boss/Base*` so they show highlighted.
+
+The page needs at least 3 published groups with 3 or more projects each (the build stops otherwise); other groups
+can be smaller. Set `draft: true` on a group that isn't ready and it only shows on the dev server. Competency and
+outcome wording lives in `src/data/competencies.ts`.
 
 A project in a group automatically shows a "Featured in" link back to the Portfolio page.
 

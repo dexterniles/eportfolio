@@ -27,15 +27,21 @@ load fast enough that a placeholder image isn't needed.*
   Regroup the Portfolio page by SolidWorks skill, with a 3–4 sentence reflection per group
   (SolidWorks terms highlighted), while keeping the competency tags from item 16. Assemblies
   must show exploded and collapsed views. Plan agreed Nov 8 2026:
-  - [ ] Skill groups: Sketching & Simple Features, Complex Features, Assemblies,
-        Drawings & Templates, Configurations / 3D Sketching / Reverse Engineering
-  - [ ] Reflections with highlighted terms, plus a one-line "why it matters" per group
-  - [ ] Relax the 3-per-group rule to "at least 3 groups with 3+" (Assemblies may have 1)
-  - [ ] `npm run step2glb`: STEP assembly → multi-part GLB, one site-palette color per part
-  - [ ] Viewer: Explode/Collapse toggle (E key), explode lines, color key / BOM with part links
-  - [ ] Drawing Templates section in CAD111
-  - [ ] Waiting on exports: A1000 arbor press (STEP), A/B/metric templates, CAD111-0002 to -0004
-        drawings, more parts, special models (configurations, 3D sketch, reverse engineering)
+  - [x] Skill groups: Sketching & Simple Features (14), Complex Features (7), Assemblies (1),
+        Drawings & Templates (3). Configurations / 3D Sketching / Reverse Engineering waits on exports.
+  - [x] Reflections with highlighted terms (highlighter tint), plus a one-line "why it matters" per group.
+        **First drafts: features named in them still need checking against what was actually used.**
+  - [x] Relax the 3-per-group rule to "at least 3 groups with 3+" (checked at build time)
+  - [x] `npm run step2glb`: STEP AP214 → multi-part GLB via occt-import-js, one palette color per part
+        number, hardware simplified (A1000: 84k → 44k triangles, 456 KB)
+  - [x] Viewer: Explode/Collapse toggle (E key), dashed explode lines, per-part `explode:` and `view:`
+        front matter, color key / BOM with part and McMaster-Carr links, hover to highlight
+  - [x] A1000 Arbor Press assembly page (CAD111 → Assemblies), exploded cover
+  - [x] Drawing Templates section in CAD111 (hidden until templates are added)
+  - [ ] Waiting on exports: A/B/metric templates, CAD111-0002 to -0004 drawings, more parts, special
+        models (configurations, 3D sketch, reverse engineering). (A1000 STEP received Nov 8.)
+  - [ ] A1000: names for A1001–A1003 and A1006–A1008 (guessed in `labels:`), mates used, and a
+        screenshot of the SolidWorks exploded view to match its directions
   - [ ] In SolidWorks: revision "A" plus a revision block, fix the "MATERAIL" typo, all-caps
         text, a section or detail view on CAD111-0001, balloons on the C1000 exploded view
 
