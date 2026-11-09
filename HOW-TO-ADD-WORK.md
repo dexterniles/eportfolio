@@ -18,6 +18,10 @@ or `npm run dev`) so the page shows up.
 
 ## 2. Fill in the front matter
 
+Title CAD111 parts with their part number and **official name** from
+[`src/data/part-numbers.ts`](src/data/part-numbers.ts) (the course's part number list), e.g. `A1003 · Pinion Shaft`.
+Projects without a part number (the oven rack, the light switch cover) just use their name.
+
 ```yaml
 ---
 title: Spur Gear

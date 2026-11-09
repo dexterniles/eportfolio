@@ -1,15 +1,15 @@
 ---
-title: CAD111-0001 · Stepped Channel Block Drawing
+title: CAD111-0001 · Block Drawing
 course: cad111
 section: drawings
-summary: A fully dimensioned detail drawing of the stepped channel block, with top, front, and right-side views and an isometric view.
+summary: A fully dimensioned detail drawing of the CAD111-0001 block, with top, front, and right-side views and an isometric view.
 pdf: /drawings/cad111-0001.pdf
 cover: ./images/cad111-0001-drawing.png
-coverAlt: Detail drawing of the stepped channel block with dimensioned top, front, and right-side views and an isometric view
+coverAlt: Detail drawing of the CAD111-0001 block with dimensioned top, front, and right-side views and an isometric view
 order: 3
 ---
 
-The detail drawing for the [Stepped Channel Block model](/cad111/models/cad111-0001).
+The detail drawing for the [CAD111-0001 Block model](/cad111/models/cad111-0001).
 
 ## Views
 | View | What it shows |

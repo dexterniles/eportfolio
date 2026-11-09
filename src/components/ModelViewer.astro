@@ -4,6 +4,7 @@
 // Assemblies (multi-part .glb from `npm run step2glb`) also get an Explode/Collapse button
 // and a color key that names each part and links to its page.
 import { getCollection } from 'astro:content';
+import { partName } from '../data/part-numbers';
 import { readGlbParts } from '../lib/glb-parts';
 import { projectHref } from '../lib/projects';
 
@@ -16,8 +17,9 @@ interface Props {
 }
 const { src, alt, explode, labels = {}, view } = Astro.props;
 
-// Color key: each part number, linked to its project page when there is one ("A1005 · …").
-// Named by that page's title, else `labels`, else the CAD file's description or supplier number.
+// Color key: each part number, linked to its project page when there is one ("A1005 · …"), or to
+// McMaster-Carr for purchased hardware. Named by that page's title, else `labels`, else the official
+// part number list (src/data/part-numbers.ts), else the CAD file's description or supplier number.
 const parts = readGlbParts(src);
 const projects = parts.length ? await getCollection('projects') : [];
 const key = parts.map((p) => {
@@ -25,7 +27,7 @@ const key = parts.map((p) => {
   const supplier = p.vendor && `McMaster-Carr ${p.vendor}`;
   return {
     ...p,
-    name: page?.data.title.split(' · ').slice(1).join(' · ') ?? labels[p.part] ?? p.label ?? supplier ?? '',
+    name: page?.data.title.split(' · ').slice(1).join(' · ') ?? labels[p.part] ?? partName(p.part) ?? p.label ?? supplier ?? '',
     href: page ? projectHref(page) : p.vendor ? `https://www.mcmaster.com/${p.vendor}` : undefined,
     external: !page && Boolean(p.vendor),
   };
@@ -89,13 +91,13 @@ const placedCount = parts.reduce((n, p) => n + p.count, 0);
         <p class="label border-b border-line px-4 py-2.5">
           Parts · {key.length} part numbers, {placedCount} pieces · hover to highlight
         </p>
-        <ul class="grid py-1 sm:grid-cols-2" data-part-key>
+        <ul class="grid grid-cols-1 py-1 sm:grid-cols-2" data-part-key>
           {key.map((p) => {
             const row = (
               <>
                 <span class="size-3.5 shrink-0 rounded-sm border border-ink/20" style={`background:${p.color}`} aria-hidden="true" />
                 <span class="font-mono text-sm font-semibold">{p.part}</span>
-                <span class="min-w-0 truncate text-sm text-muted">{p.name}</span>
+                <span class="min-w-0 truncate text-sm text-muted" title={p.name}>{p.name}</span>
                 <span class="ml-auto shrink-0 font-mono text-xs text-muted">×{p.count}</span>
               </>
             );

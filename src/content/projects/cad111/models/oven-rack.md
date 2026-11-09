@@ -1,5 +1,5 @@
 ---
-title: SW03A · Oven Rack
+title: Oven Rack
 course: cad111
 section: models
 summary: A wire oven rack modeled as a bent wire path with a 3D sketch, with cross wires spanning the frame.
@@ -12,7 +12,6 @@ order: 30
 ## Specs
 | | |
 | --- | --- |
-| Part number | SW21W04SW03A |
 | Overall size | 305.0 × 245.0 × 20.0 mm (12.01 × 9.65 × 0.79 in) |
 | Software | SolidWorks |
 

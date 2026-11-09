@@ -23,6 +23,7 @@ Personal engineering e-Portfolio for my coursework at Bristol Community College 
 | Portfolio page groups and narratives | `src/content/showcase/` |
 | Courses and their sections | `src/data/courses.ts` |
 | Competencies and course outcomes | `src/data/competencies.ts` |
+| Official CAD111 part numbers and names | `src/data/part-numbers.ts` |
 | Name, intro, contact info | `src/site.config.ts` |
 | 3D models / drawing PDFs | `public/models/` / `public/drawings/` |
 | Source CAD exports (STL, STEP) | `cad/` |

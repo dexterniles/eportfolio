@@ -56,10 +56,13 @@ load fast enough that a placeholder image isn't needed.*
         view on CAD111-0001, balloons on the C1000 exploded view)
   - Not doing: the V-series (V1001, V1002, V1004, V1005, V1009) and CS1001–CS1005 parts and the
     CS1000 / V1000 assemblies. Not built in class
-  - [ ] Final pass with Dexter: part names A1002, A1003, A1006–A1008 (guessed from the model; fine for
-        now), the C1000 mates, and the features named in the reflections (including group E's: 3D
-        Sketch, Sketch Fillets, Swept Boss/Base, and Linear Pattern for the oven rack).
-        Confirmed Nov 8: the arbor press uses SolidWorks' Rack and Pinion mechanical mate
+  - [x] Part names: every title now uses the official CAD111 part number list, saved as
+        `src/data/part-numbers.ts` (Nov 8). The arbor press parts key also takes names from it, so
+        the downloaded frame and the McMaster-Carr hardware are named too. The oven rack and light
+        switch cover have no part number and are titled by name only
+  - [ ] Final pass with Dexter: the C1000 mates, and the features named in the reflections
+        (including group E's: 3D Sketch, Sketch Fillets, Swept Boss/Base, and Linear Pattern for the
+        oven rack). Confirmed Nov 8: the arbor press uses SolidWorks' Rack and Pinion mechanical mate
 
 ## Tier 1: Big wins
 
@@ -130,10 +133,14 @@ load fast enough that a placeholder image isn't needed.*
   `src/site.config.ts` (unused since the logo replaced it).
   - *Done Nov 8 2026:* removed the `placeholder` schema field, the card badge, the project-page
     banner, and the home-page filter, plus the `initials` setting. No visible change.
-- [ ] **14. Part names**
-  CAD111-0001 to -0006 still have descriptive names (Stepped Channel Block, …).
+- [x] **14. Part names**
+  CAD111-0001 to -0006 had descriptive names (Stepped Channel Block, …).
   - *C-clamp parts done Oct 31 2026:* C1001–C1003 renamed from the C1000 assembly drawing's bill of
     materials (C-Clamp, C-Clamp - Screw, Clamp - Anvil).
+  - *Done Nov 8 2026:* all CAD111 titles match the official part number list
+    (`src/data/part-numbers.ts`): CAD111-0001 Block, -0002 Block, -0003 Plate 56mm x 22mm, -0004 Arm,
+    -0005 Block, -0006 L Bracket (Rev B); A1005 Press Plate, V1008 Balls, V1010 #12-24UNC-2A x 3/4L Flat
+    Point Set Screw, C1003 C-Clamp - Anvil, C1000 Clamp - 4", and the new arbor press parts.
 - [ ] **15. Multi-sheet drawings on iPhone**
   Embedded PDFs show only page 1 on iPhone. Fine for one-sheet drawings; switch to a
   page-by-page image view if multi-sheet drawings are added.

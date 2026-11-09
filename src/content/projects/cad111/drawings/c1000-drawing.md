@@ -1,5 +1,5 @@
 ---
-title: C1000 · C-Clamp Assembly Drawing
+title: 'C1000 · Clamp - 4" Assembly Drawing'
 course: cad111
 section: drawings
 summary: A one-sheet assembly drawing of the C-clamp, with a full section through the screw, an exploded isometric view, and a bill of materials for its four parts.

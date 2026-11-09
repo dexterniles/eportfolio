@@ -1,5 +1,5 @@
 ---
-title: 3DP03 · Light Switch Cover
+title: Light Switch Cover
 course: cad111
 section: models
 summary: A single-toggle light switch cover recreated from a McMaster-Carr switch plate, with my own sunburst decoration around the top screw.
@@ -12,7 +12,6 @@ order: 29
 ## Specs
 | | |
 | --- | --- |
-| Part number | SW28-W06-3DP03 |
 | Overall size | 74.6 × 119.1 × 7.1 mm (2.94 × 4.69 × 0.28 in) |
 | Based on | A standard switch plate from McMaster-Carr |
 | Software | SolidWorks |
