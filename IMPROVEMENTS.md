@@ -165,6 +165,23 @@ load fast enough that a placeholder image isn't needed.*
   Tailwind 4.3.5, Speed Insights 2.1.0, Playwright 1.65, pdf.js, `@astrojs/check`). Verified
   pixel-identical to the live site on 4 pages in both themes; 3D viewer and explode work on the
   production preview and a cold dev server. Held back: three.js r187 and TypeScript 7 (see below).
+- *Nov 9 2026:* Chrome DevTools audit of the live site (Lighthouse mobile, plus traces at 4× CPU / Fast 4G).
+  Home, Portfolio, the C1000 drawing, the A1000 assembly, and a CIS158 code page all score 100 for
+  Accessibility, SEO, and Best Practices; the code page is now 100 in dark mode too (item 10). The A1000
+  trace: LCP 526 ms, CLS 0, no console errors, 249 DOM elements. Fixed: the McMaster-Carr links in the
+  parts key used an `aria-label` that dropped the visible "×4" count (Lighthouse
+  `label-content-name-mismatch`); they now use the visible text plus a hidden "(opens McMaster-Carr in a
+  new tab)". Notes, not fixed: the drawing page's 0.13 layout shift happens inside Chrome's own PDF
+  viewer (`#container` isn't ours, and Android Chrome shows the cover image instead); C project
+  header images are 1200 px wide, slightly soft on 2×+ displays, and sharper ones need the tabled
+  terminal-cover tool.
+- *Nov 9 2026:* Vercel check (project `dexterniles`, team `dexter-niles-projects`): every recent
+  deployment READY, builds about 11 s, no runtime errors in 7 days, Web Analytics recording (home 36
+  visitors, Portfolio 12 over the past month). The build warned that the open-ended
+  `engines.node` (`>=22.23.4`) would jump to each new major Node.js automatically, so it's now
+  `^22.23.4 || ^24.0.0 || ^26.0.0` (Astro's even-numbered majors; Vercel still picks 26.x). The
+  remaining "Project Settings 24.x will not apply" warning clears if the project's Node.js setting is
+  changed to 26.x. The `npm warn Unknown env config "cache-dir"` comes from Vercel's build image.
 - *Held back (Nov 9 2026):* **three.js r187**: Context7's docs only go to r186, and three.js can
   break APIs in any release, so upgrade it with the r187 migration notes. **TypeScript 7**: a new
   major version; confirm `@astrojs/check` and Astro's tooling work with it before upgrading.

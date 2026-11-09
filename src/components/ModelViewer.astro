@@ -108,9 +108,11 @@ const placedCount = parts.reduce((n, p) => n + p.count, 0);
                   <a
                     href={p.href}
                     class={`${cls} transition hover:bg-paper hover:text-accent`}
-                    {...(p.external && { target: '_blank', rel: 'noopener', 'aria-label': `${p.part}, ${p.name} (opens McMaster-Carr in a new tab)` })}
+                    {...(p.external && { target: '_blank', rel: 'noopener' })}
                   >
                     {row}
+                    {/* Appended rather than an aria-label, so the accessible name still contains the visible text (WCAG 2.5.3). */}
+                    {p.external && <span class="sr-only">(opens McMaster-Carr in a new tab)</span>}
                   </a>
                 ) : (
                   <span class={cls} tabindex="0">
