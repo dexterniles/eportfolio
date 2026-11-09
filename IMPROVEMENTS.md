@@ -35,7 +35,10 @@ load fast enough that a placeholder image isn't needed.*
   - [x] `npm run step2glb`: STEP AP214 → multi-part GLB via occt-import-js, one palette color per part
         number, hardware simplified (A1000: 84k → 44k triangles, 456 KB)
   - [x] Viewer: Explode/Collapse toggle (E key), dashed explode lines, per-part `explode:` and `view:`
-        front matter, color key / BOM with part and McMaster-Carr links, hover to highlight
+        front matter, color key / BOM with part and McMaster-Carr links, hover to highlight.
+        *Nov 9:* the explode now animates even with reduced motion on. It used to snap, which looked
+        broken in Chrome on Windows PCs with "Animation effects" off (common under "Adjust for best
+        performance"). Auto-spin and page transitions still respect reduced motion
   - [x] A1000 Arbor Press assembly page (CAD111 → Assemblies), exploded cover
   - [x] C1000 C-Clamp assembly page (Nov 8): explodes like the drawing (screw out, pin up), with the
         C1000 drawing shown under the model; C1001–C1004 link to it

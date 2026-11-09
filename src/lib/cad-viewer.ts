@@ -707,9 +707,11 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
       const distance = camera.position.distanceTo(controls.target);
       const next = Math.min(Math.max((to.distance * distance) / from.distance, controls.minDistance), controls.maxDistance);
       explodeTarget = target;
-      const instant = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // This animates even with reduced motion on (unlike the auto-spin): it only runs when the
+      // visitor asks for it, it's brief, and the motion is the point, showing how the parts come
+      // apart. Windows turns reduced motion on with "Adjust for best performance", so many PCs report it.
       explodeAnim = {
-        start: performance.now() - (instant ? EXPLODE_MS : 0),
+        start: performance.now(),
         from: explodeT,
         fromTarget: controls.target.clone(),
         toTarget: fitTarget(to),
