@@ -28,13 +28,13 @@ export default defineConfig({
     optimizeDeps: {
       include: [
         'three',
-        'three/examples/jsm/loaders/GLTFLoader.js',
-        'three/examples/jsm/controls/OrbitControls.js',
-        'three/examples/jsm/environments/RoomEnvironment.js',
-        'three/examples/jsm/libs/meshopt_decoder.module.js',
-        'three/examples/jsm/lines/LineSegments2.js',
-        'three/examples/jsm/lines/LineSegmentsGeometry.js',
-        'three/examples/jsm/lines/LineMaterial.js',
+        'three/addons/loaders/GLTFLoader.js',
+        'three/addons/controls/OrbitControls.js',
+        'three/addons/environments/RoomEnvironment.js',
+        'three/addons/libs/meshopt_decoder.module.js',
+        'three/addons/lines/LineSegments2.js',
+        'three/addons/lines/LineSegmentsGeometry.js',
+        'three/addons/lines/LineMaterial.js',
       ],
     },
     // The 3D viewer (three.js) is ~170 KB gzipped and only loads on pages with a model.

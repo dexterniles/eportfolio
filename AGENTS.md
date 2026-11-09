@@ -17,7 +17,11 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
   in page titles (`A1003 · Pinion Shaft`) instead of guessing. A1001 (the arbor press frame) was supplied by the
   instructor, so it never gets a page of its own.
 - Restart the dev server after adding new content files or collections; it doesn't pick them up on its own.
-- `npm run covers` uses the dev server and Playwright's Chromium (`npx playwright install chromium` on a new machine).
+- `npm run covers` uses the dev server and Playwright's Chromium (`npx playwright install chromium` on a new machine,
+  and again after Playwright updates).
+- Check library APIs against current docs with Context7 (`resolve-library-id`, then `query-docs`) rather than memory:
+  Astro (`/withastro/docs`), three.js (`/mrdoob/three.js/r186`, matching the installed version), Tailwind v4
+  (`/tailwindlabs/tailwindcss.com`), Vercel (`/websites/vercel`).
 - On Windows Git Bash, set `MSYS_NO_PATHCONV=1` when passing URL paths like `/portfolio` as command arguments.
 
 ## Documentation

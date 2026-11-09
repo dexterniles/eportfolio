@@ -126,7 +126,8 @@ npm run covers -- spur-gear     # just this project; add --force to re-render an
 ```
 
 It saves to `images/<name>.png` beside the Markdown file (or wherever `cover:` points) and tells you
-the `cover:` line to add if it's missing. The first time on a new computer, run `npx playwright install chromium`.
+the `cover:` line to add if it's missing. The first time on a new computer, and after Playwright updates, run
+`npx playwright install chromium`.
 
 ## 6. Feature it on the Portfolio page (optional)
 

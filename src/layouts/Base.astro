@@ -53,6 +53,8 @@ const ogImage = new URL('/og.png', Astro.site);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
+    <!-- Vercel Web Analytics: cookie-free visitor stats (in <head>, per Vercel's Astro guide) -->
+    <Analytics />
   </head>
   <body class="flex flex-col antialiased">
     <Header />
@@ -60,8 +62,7 @@ const ogImage = new URL('/og.png', Astro.site);
       <slot />
     </main>
     <Footer sheet={sheet} />
-    <!-- Vercel Web Analytics (cookie-free visitor stats) and Speed Insights (real-visitor load times) -->
-    <Analytics />
+    <!-- Vercel Speed Insights: real-visitor load times (near the bottom, per Vercel's Astro guide) -->
     <SpeedInsights />
   </body>
 </html>

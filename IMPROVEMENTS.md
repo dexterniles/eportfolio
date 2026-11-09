@@ -154,3 +154,17 @@ load fast enough that a placeholder image isn't needed.*
   cleared 6 vulnerabilities in build tools (patch and minor updates only).
 - *Nov 8 2026:* docs refreshed (README, this list, HOW-TO-ADD-WORK, inbox README). `CLAUDE.md`
   now imports `AGENTS.md` (`@AGENTS.md`). Removed `.gitkeep` files from folders that have content.
+- *Nov 9 2026:* review against current docs via Context7 (Astro, three.js r186, Tailwind v4, Vercel).
+  Already current: content collections (`content.config.ts`, `glob` loader, `astro/zod`, `image()`,
+  `reference()`), the `prefetch`, `shikiConfig`, and `build` config, the dark-mode `@custom-variant`,
+  `PCFShadowMap` (r186 deprecated `PCFSoftShadowMap`, which isn't used). Changed: theme colors moved
+  to `@theme inline` (Tailwind's guidance for variables that reference other variables); three.js
+  add-ons imported from `three/addons/` (the documented path) in the viewer and `optimizeDeps`;
+  `engines.node` raised to Astro's minimum, `>=22.23.4` (Vercel still builds on Node 26.x LTS);
+  `<Analytics />` moved into `<head>` per Vercel's Astro guide; in-range updates (Astro 7.4.8,
+  Tailwind 4.3.5, Speed Insights 2.1.0, Playwright 1.65, pdf.js, `@astrojs/check`). Verified
+  pixel-identical to the live site on 4 pages in both themes; 3D viewer and explode work on the
+  production preview and a cold dev server. Held back: three.js r187 and TypeScript 7 (see below).
+- *Held back (Nov 9 2026):* **three.js r187**: Context7's docs only go to r186, and three.js can
+  break APIs in any release, so upgrade it with the r187 migration notes. **TypeScript 7**: a new
+  major version; confirm `@astrojs/check` and Astro's tooling work with it before upgrading.
