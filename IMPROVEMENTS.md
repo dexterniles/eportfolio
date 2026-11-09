@@ -44,13 +44,22 @@ load fast enough that a placeholder image isn't needed.*
         Faceplate, Handle, Collar, Handle Knob) to the Simple and Complex Features groups. A1001 (Frame)
         was supplied by the instructor: no page of its own, credited in the A1000 parts key
   - [x] Drawing Templates section in CAD111 (hidden until templates are added)
-  - [ ] Waiting on exports: A/B/metric templates, CAD111-0002 to -0004 drawings, more parts, special
-        models (configurations, 3D sketch, reverse engineering). (A1000 and C1000 STEP received Nov 8.)
+  - [x] Light switch cover (SW28-W06-3DP03): recreated from a McMaster-Carr switch plate with
+        Dexter's own sunburst decoration, and the oven rack (SW21W04SW03A, 3D sketch). New group
+        **E · 3D Sketching & Reverse Engineering** (Nov 8)
+  - [ ] Waiting on exports: A/B/metric templates, other special models (configurations, design
+        tables). Received Nov 8: A1000 and C1000 STEP, light switch and oven rack STLs.
+        `SW23A-W05-3DP02.STL` (a ghost figure) was uploaded by mistake for the oven rack; it's back
+        in `inbox/models/`, not on the site
+  - [ ] Later (Dexter's call, Nov 8): drawings (CAD111-0002 to -0004, and the SolidWorks fixes:
+        revision "A" plus a revision block, the "MATERAIL" typo, all-caps text, a section or detail
+        view on CAD111-0001, balloons on the C1000 exploded view)
+  - Not doing: the V-series (V1001, V1002, V1004, V1005, V1009) and CS1001–CS1005 parts and the
+    CS1000 / V1000 assemblies. Not built in class
   - [ ] Final pass with Dexter: part names A1002, A1003, A1006–A1008 (guessed from the model; fine for
-        now), the C1000 mates, and the features named in the reflections. Confirmed Nov 8: the
-        arbor press uses SolidWorks' Rack and Pinion mechanical mate
-  - [ ] In SolidWorks: revision "A" plus a revision block, fix the "MATERAIL" typo, all-caps
-        text, a section or detail view on CAD111-0001, balloons on the C1000 exploded view
+        now), the C1000 mates, and the features named in the reflections (including group E's: 3D
+        Sketch, Sketch Fillets, Swept Boss/Base, and Linear Pattern for the oven rack).
+        Confirmed Nov 8: the arbor press uses SolidWorks' Rack and Pinion mechanical mate
 
 ## Tier 1: Big wins
 
