@@ -353,20 +353,48 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
   const fitTarget = (fit: Fit) => fit.center.clone().applyAxisAngle(UP, turntable.rotation.y);
   const currentFit = () => fits[explodeTarget && fits.length > 1 ? 1 : 0];
 
-  function frame(collapsed: Box3, points: Vector3[], exploded?: Box3, explodedPoints?: Vector3[]) {
+  // What the fits are measured from, kept so they can be redone when the viewer changes shape.
+  let fitInputs: { collapsed: Box3; points: Vector3[]; exploded?: Box3; explodedPoints?: Vector3[] } | null = null;
+
+  // Camera distances for the current canvas shape, and the zoom and clipping limits that follow.
+  function computeFits() {
+    if (!fitInputs) return;
+    const { collapsed, points, exploded, explodedPoints } = fitInputs;
     fits.length = 0;
     fits.push(fitBox(collapsed, points));
     if (exploded) fits.push(fitBox(exploded, explodedPoints));
-    const all = exploded ? collapsed.clone().union(exploded) : collapsed;
-    const sphere = all.getBoundingSphere(new Sphere());
-    radius = sphere.radius || 1;
-    const center = sphere.center;
     const far = Math.max(...fits.map((f) => f.distance));
     camera.near = far / 100;
     camera.far = far * 10;
     camera.updateProjectionMatrix();
     controls.minDistance = fits[0].distance * 0.35;
     controls.maxDistance = far * 3;
+  }
+
+  // The fit depends on the canvas's shape, so redo it when that changes (fullscreen, a rotated
+  // phone, a resized window), keeping the visitor's angle and how far they'd zoomed.
+  function refit() {
+    if (!framed) return;
+    if (explodeAnim) {
+      explodeAnim = null;
+      explodeT = explodeTarget;
+      applyExplode();
+    }
+    const before = currentFit().distance;
+    computeFits();
+    const offset = camera.position.clone().sub(controls.target);
+    const length = (offset.length() * currentFit().distance) / before;
+    camera.position.copy(controls.target).add(offset.setLength(Math.min(Math.max(length, controls.minDistance), controls.maxDistance)));
+    controls.update();
+  }
+
+  function frame(collapsed: Box3, points: Vector3[], exploded?: Box3, explodedPoints?: Vector3[]) {
+    fitInputs = { collapsed, points, exploded, explodedPoints };
+    computeFits();
+    const all = exploded ? collapsed.clone().union(exploded) : collapsed;
+    const sphere = all.getBoundingSphere(new Sphere());
+    radius = sphere.radius || 1;
+    const center = sphere.center;
     framed = true;
 
     // Shadow catcher just under the (collapsed) part, light from above-front.
@@ -607,8 +635,10 @@ export function createCadViewer(container: HTMLElement, options: CadViewerOption
     renderer.setSize(w, h, false);
     edgeMaterial.resolution.set(w, h);
     explodeLineMaterial.resolution.set(w, h);
+    const reshaped = Math.abs(camera.aspect - w / h) > 0.001;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    if (reshaped) refit();
     requestRender();
   }
   new ResizeObserver(resize).observe(container);
