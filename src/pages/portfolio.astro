@@ -20,7 +20,7 @@ const exampleCount = groups.reduce((n, g) => n + g.projects.length, 0);
 
 <Base
   title="Portfolio"
-  description={`Selected CAD work by ${site.name}, grouped by SolidWorks skill: sketching and simple features, complex features, assemblies, and drawings.`}
+  description={`Selected CAD work by ${site.name}, grouped by SolidWorks skill: ${groups.map(({ group }) => group.data.title).join('; ')}.`}
   sheet="Portfolio"
 >
   <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">

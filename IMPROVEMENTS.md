@@ -51,9 +51,9 @@ load fast enough that a placeholder image isn't needed.*
         Dexter's own sunburst decoration, and the oven rack (SW21W04SW03A, 3D sketch). New group
         **E · 3D Sketching & Reverse Engineering** (Nov 8)
   - [ ] Waiting on exports: A/B/metric templates, other special models (configurations, design
-        tables). Received Nov 8: A1000 and C1000 STEP, light switch and oven rack STLs.
-        `SW23A-W05-3DP02.STL` (a ghost figure) was uploaded by mistake for the oven rack; it's back
-        in `inbox/models/`, not on the site
+        tables). Received Nov 8: A1000 and C1000 STEP, light switch and oven rack STLs. (A ghost
+        figure, `SW23A-W05-3DP02.STL`, was uploaded by mistake for the oven rack and never went on
+        the site; Dexter has since removed it from the inbox.)
   - [ ] Later (Dexter's call, Nov 8): drawings (CAD111-0002 to -0004, and the SolidWorks fixes:
         revision "A" plus a revision block, the "MATERAIL" typo, all-caps text, a section or detail
         view on CAD111-0001, balloons on the C1000 exploded view)
@@ -128,9 +128,10 @@ load fast enough that a placeholder image isn't needed.*
 - [x] **11. Footer tagline**
   "All dimensions in inches unless noted" contradicted the millimeter spec tables.
   - *Done Nov 8 2026:* now "do not scale drawing", the standard title-block note.
-- [ ] **12. Spec table units**
-  Pressure Plate is mm only; later parts show mm and inches; the CAD111-0001 drawing is in
-  inches. Pick one style.
+- [x] **12. Spec table units**
+  Pressure Plate was mm only; later parts showed mm and inches.
+  - *Done Nov 11 2026:* every model page uses "mm (in)" (18 rows in 10 files gained inch
+    equivalents). Drawing pages list dimensions as they appear on the sheet.
 - [x] **13. Remove leftover code**
   The `placeholder` field and badge (no project uses it) and the `initials` setting in
   `src/site.config.ts` (unused since the logo replaced it).
@@ -182,6 +183,24 @@ load fast enough that a placeholder image isn't needed.*
   `^22.23.4 || ^24.0.0 || ^26.0.0` (Astro's even-numbered majors; Vercel still picks 26.x). The
   remaining "Project Settings 24.x will not apply" warning clears if the project's Node.js setting is
   changed to 26.x. The `npm warn Unknown env config "cache-dir"` comes from Vercel's build image.
+- *Nov 11 2026:* codebase review. A crawl of the built site (53 pages, 1,215 internal links and
+  assets) found no broken links, duplicate ids, or heading problems. Fixed:
+  - **Viewer re-fits when its shape changes.** The camera fit was only computed at load, so wide
+    models were cut off after going fullscreen on a portrait phone or resizing the window.
+    `cad-viewer.ts` now redoes the fit on resize, keeping the visitor's angle and zoom.
+  - **Author notes no longer published.** 31 project pages carried "Fill in when you are ready"
+    HTML comments into their page source. They're now `# Write-up still to add: …` lines in each
+    file's front matter; `templates/project.md` warns about HTML comments.
+  - Download and PDF links opt out of hover prefetch (`data-astro-prefetch="false"`); Astro's
+    `prefetchAll` otherwise fetched the file on hover.
+  - `sharp` declared as a dev dependency (the `og` and `icons` scripts import it directly).
+  - 404 page links to the Portfolio and only to courses that have project pages.
+  - Portfolio page's meta description lists the current groups instead of a fixed four.
+  - `X-Content-Type-Options: nosniff` and `Referrer-Policy` headers for every route (`vercel.json`).
+  - Spec table units (item 12).
+  Left alone on purpose: the viewer's render loop keeps running while a paused model is on screen
+  (cheap, and stopping it risks the damping and spin logic); code pages embed each source file
+  twice (highlighted, and plain for the Copy button), a few KB per page.
 - *Held back (Nov 9 2026):* **three.js r187**: Context7's docs only go to r186, and three.js can
   break APIs in any release, so upgrade it with the r187 migration notes. **TypeScript 7**: a new
   major version; confirm `@astrojs/check` and Astro's tooling work with it before upgrading.

@@ -83,7 +83,7 @@ const placedCount = parts.reduce((n, p) => n + p.count, 0);
     <span id="viewer-keys">
       Drag to rotate · scroll or pinch to zoom · right-drag to pan · arrow keys rotate{parts.length > 0 && ' · E explodes'}
     </span>
-    <a href={src} download class="text-accent hover:underline">Download .glb</a>
+    <a href={src} download data-astro-prefetch="false" class="text-accent hover:underline">Download .glb</a>
   </figcaption>
   {
     key.length > 0 && (

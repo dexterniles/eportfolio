@@ -20,9 +20,11 @@ summary: One or two sentences shown on the card and at the top of the page.
 order: 1                 # position within the section (lower comes first)
 ---
 
+<!-- DELETE every comment like this one before publishing: HTML comments in the write-up end up in
+     the page's source. To leave yourself a note, put a `# ...` line in the front matter above. -->
+
 <!-- Models: start with a spec table (Part number, Overall size in mm and in, Assembly, Software),
      like the existing parts. Then run `npm run covers -- <name>` to render the card image. -->
-
 
 <!-- Pick the headings that fit. Suggestions by section: -->
 

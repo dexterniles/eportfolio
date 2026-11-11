@@ -66,7 +66,7 @@ const githubDir = site.github ? `${site.github}/tree/master/public${dir}` : null
               <span data-idle>Copy</span>
               <span data-done hidden>Copied ✓</span>
             </button>
-            <a href={s.href} download class="text-accent hover:underline">
+            <a href={s.href} download data-astro-prefetch="false" class="text-accent hover:underline">
               Download
             </a>
           </span>
