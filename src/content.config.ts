@@ -12,6 +12,7 @@ const projects = defineCollection({
       title: z.string(),
       course: z.enum(courseSlugs),
       section: z.string(), // must match a section slug in src/data/courses.ts
+      group: z.string().optional(), // a group slug within that section (src/data/courses.ts), if it has groups
       summary: z.string(),
       software: z.string().optional(),
       cover: image().optional(),

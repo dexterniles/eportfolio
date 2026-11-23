@@ -5,6 +5,7 @@
 title: Spur Gear
 course: cad111
 section: models          # a section slug from src/data/courses.ts (e.g. models, drawings, c-projects)
+# group: practice                       # CAD111 models: a group slug from src/data/courses.ts (arbor-press, c-clamp, vise, corkscrew, practice, reverse-engineering, tutorials)
 summary: One or two sentences shown on the card and at the top of the page.
 # software: SolidWorks                  # optional, defaults to the course's software
 # model: /models/spur-gear.glb          # optional 3D model in public/models/
@@ -17,7 +18,7 @@ summary: One or two sentences shown on the card and at the top of the page.
 # code:                                 # optional source files for code projects (folder under public/)
 #   dir: /code/cis158/uppercase
 #   files: [main.c, Makefile]
-order: 1                 # position within the section (lower comes first)
+order: 1                 # position within its group or section (lower comes first)
 ---
 
 <!-- DELETE every comment like this one before publishing: HTML comments in the write-up end up in

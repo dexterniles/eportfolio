@@ -27,6 +27,7 @@ Projects without a part number (the oven rack, the light switch cover) just use 
 title: Spur Gear
 course: cad111
 section: models          # a section slug from src/data/courses.ts (e.g. models, drawings, c-projects)
+group: practice          # CAD111 models: which group heading it goes under (see below)
 summary: One or two sentences shown on the card and at the top of the page.
 software: SolidWorks     # optional, defaults to the course's software
 model: /models/spur-gear.glb        # optional 3D model (see step 3)
@@ -46,6 +47,12 @@ Write-up goes here in Markdown. Use `## Headings`, lists, **bold**, tables, and 
 ```
 
 Every image needs `alt` text describing it, for visitors using screen readers.
+
+**Groups.** CAD111 Models is split into groups on the course page: `arbor-press`, `c-clamp`, `vise`, `corkscrew`,
+`practice`, `reverse-engineering`, and `tutorials`. Set `group:` to one of them (a typo stops the build with the list
+of valid names); a model without one is listed last under "Other". `order` then sets its place inside the group, and
+Previous/Next on the project page steps through that group. To add a group (say, for a new assembly) or split up
+another long section, add it to that section's `groups` list in `src/data/courses.ts`.
 
 ## 3. Add a 3D model (.glb)
 

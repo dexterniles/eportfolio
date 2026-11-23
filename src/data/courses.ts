@@ -6,6 +6,17 @@ export interface CourseSection {
   slug: string;
   title: string;
   blurb: string;
+  // Optional sub-headings for a long section. A project joins one with `group: <slug>` in its front
+  // matter; projects without a group are listed last under "Other". Previous/Next on a project page
+  // stays inside its group.
+  groups?: SectionGroup[];
+}
+
+export interface SectionGroup {
+  slug: string;
+  title: string;
+  blurb?: string;
+  link?: { href: string; label: string }; // e.g. the assembly these parts belong to
 }
 
 export interface Course {
@@ -40,7 +51,34 @@ export const courses: Course[] = [
       'CSWA certification prep',
     ],
     sections: [
-      { slug: 'models', title: 'Models', blurb: 'Individual parts built from sketches and features.' },
+      {
+        slug: 'models',
+        title: 'Models',
+        blurb: 'Individual parts built from sketches and features.',
+        groups: [
+          {
+            slug: 'arbor-press',
+            title: 'Arbor Press',
+            blurb: 'Parts of the A1000 arbor press, a rack-and-pinion hand press.',
+            link: { href: '/cad111/assemblies/a1000', label: 'See the assembly' },
+          },
+          {
+            slug: 'c-clamp',
+            title: 'C-Clamp',
+            blurb: 'Parts of the C1000 4" C-clamp.',
+            link: { href: '/cad111/assemblies/c1000', label: 'See the assembly' },
+          },
+          { slug: 'vise', title: "Machinist's Vise", blurb: 'Parts from the V1000 machinist vise.' },
+          { slug: 'corkscrew', title: 'Corkscrew', blurb: 'Parts from the CS1000 corkscrew.' },
+          { slug: 'practice', title: 'Practice Parts', blurb: 'Stand-alone parts from the CAD111 exercises.' },
+          {
+            slug: 'reverse-engineering',
+            title: '3D Sketching & Reverse Engineering',
+            blurb: 'Everyday products modeled in SolidWorks, including a wire rack built from a 3D sketch.',
+          },
+          { slug: 'tutorials', title: 'SolidWorks Tutorials', blurb: 'The first parts, built step by step.' },
+        ],
+      },
       { slug: 'assemblies', title: 'Assemblies', blurb: 'Parts mated together into working mechanisms.' },
       { slug: 'drawings', title: 'Drawings', blurb: 'Dimensioned engineering drawings ready for the shop.' },
       { slug: 'templates', title: 'Drawing Templates', blurb: 'My own sheet templates, with completed title and revision blocks, for A size, B size, and metric drawings.' },

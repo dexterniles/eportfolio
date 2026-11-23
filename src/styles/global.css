@@ -20,6 +20,10 @@
   /* DN logo colors (from the logo files): navy + blue on light, white + light blue on dark */
   --dn-primary: #0b1f3f;
   --dn-accent: #3b82f6;
+  /* Height of the sticky site header (py-3 around a size-10 logo, plus its border). The course
+     pages' section bar sticks just below it, and anchors scroll clear of both. */
+  --header-h: calc(4rem + 1px);
+  --anchor-offset: calc(var(--header-h) + 4.5rem);
 }
 
 [data-theme="dark"] {

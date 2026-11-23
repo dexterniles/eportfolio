@@ -10,7 +10,9 @@ import { courses } from '../../data/courses';
 import {
   getCourse,
   getCourseProjects,
+  getProjectGroup,
   projectHref,
+  projectRun,
   projectSlug,
   sectionTitle,
   type Project,
@@ -21,10 +23,15 @@ export async function getStaticPaths() {
   const perCourse = await Promise.all(
     courses.map(async (course) => {
       const list = await getCourseProjects(course.slug);
-      return list.map((project, i) => ({
-        params: { course: course.slug, slug: projectSlug(project) },
-        props: { project, index: i, total: list.length, prev: list[i - 1], next: list[i + 1] },
-      }));
+      return list.map((project) => {
+        // Previous/Next step through the project's group (or its section, if that has no groups).
+        const run = list.filter((p) => projectRun(p).key === projectRun(project).key);
+        const i = run.indexOf(project);
+        return {
+          params: { course: course.slug, slug: projectSlug(project) },
+          props: { project, index: i, total: run.length, prev: run[i - 1], next: run[i + 1] },
+        };
+      });
     }),
   );
   return perCourse.flat();
@@ -32,7 +39,7 @@ export async function getStaticPaths() {
 
 interface Props {
   project: Project;
-  index: number;
+  index: number; // position within its group or section
   total: number;
   prev?: Project;
   next?: Project;
@@ -41,17 +48,28 @@ const { project, index, total, prev, next } = Astro.props;
 const d = project.data;
 const course = getCourse(d.course)!;
 const section = sectionTitle(d.course, d.section);
+const group = getProjectGroup(project);
+const run = projectRun(project);
+const runHref = `/${course.slug}#${run.anchor}`;
 const { Content } = await render(project);
 const featuredIn = await getGroupsForProject(project.id);
 ---
 
-<Base title={d.title} description={d.summary} sheet={`${course.code} · ${index + 1} of ${total}`}>
+<Base title={d.title} description={d.summary} sheet={`${course.code} · ${run.title}${total > 1 ? ` · ${index + 1} of ${total}` : ''}`}>
   <nav aria-label="Breadcrumb" class="pt-10 font-mono text-xs text-muted">
     <a href="/" class="hover:text-accent">Home</a>
     <span aria-hidden="true"> / </span>
     <a href={`/${course.slug}`} class="hover:text-accent">{course.code}</a>
     <span aria-hidden="true"> / </span>
     <a href={`/${course.slug}#${d.section}`} class="hover:text-accent">{section}</a>
+    {
+      group && (
+        <>
+          <span aria-hidden="true"> / </span>
+          <a href={runHref} class="hover:text-accent">{group.title}</a>
+        </>
+      )
+    }
   </nav>
 
   <header class="py-8">
@@ -122,7 +140,10 @@ const featuredIn = await getGroupsForProject(project.id);
     )
   }
 
-  <nav aria-label="More projects" class="mt-16 grid grid-cols-2 gap-3 border-t border-line pt-8 sm:gap-4">
+  <nav aria-labelledby="run-title" class="mt-16 grid grid-cols-2 gap-3 border-t border-line pt-8 sm:gap-4">
+    <p id="run-title" class="label col-span-2">
+      <a href={runHref} class="hover:text-accent">{run.title}</a>{total > 1 && ` · ${index + 1} of ${total}`}
+    </p>
     {
       prev ? (
         <a href={projectHref(prev)} class="group rounded-md border border-line bg-surface p-3 transition hover:border-accent sm:p-4">
@@ -140,8 +161,8 @@ const featuredIn = await getGroupsForProject(project.id);
           <span class="mt-1 block text-sm font-semibold break-words group-hover:text-accent sm:text-base">{next.data.title}</span>
         </a>
       ) : (
-        <a href={`/${course.slug}`} class="group rounded-md border border-line bg-surface p-3 text-right transition hover:border-accent sm:p-4">
-          <span class="label">Done</span>
+        <a href={runHref} class="group rounded-md border border-line bg-surface p-3 text-right transition hover:border-accent sm:p-4">
+          <span class="label">{total > 1 ? `End of ${run.title}` : 'Done'}</span>
           <span class="mt-1 block text-sm font-semibold break-words group-hover:text-accent sm:text-base">Back to {course.code}</span>
         </a>
       )

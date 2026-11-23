@@ -103,10 +103,15 @@ load fast enough that a placeholder image isn't needed.*
   - *Done Oct 13 2026:* the browser's built-in cross-page transitions (`@view-transition` in
     `global.css`) instead of Astro's client router, so every page still loads normally and
     nothing needs re-initializing. Off for reduced motion. Links prefetch on hover.
-- [ ] **7. Organize the CAD111 Models grid**
+- [x] **7. Organize the CAD111 Models grid**
   28 models in one run on the CAD111 page (Nov 8 2026). Group by assignment or skill with small
   headings, or add filter chips. (Item 17's skill groups cover this on the Portfolio page; the
   course page is the full archive.)
+  - *Done Nov 23 2026:* the 29 models are split into 7 groups with headings (A1–A7): Arbor Press,
+    C-Clamp, Machinist's Vise, Corkscrew, Practice Parts, 3D Sketching & Reverse Engineering,
+    SolidWorks Tutorials. A row of links under "Models" jumps to each group. The Arbor Press and C-Clamp
+    groups link to their assemblies. Groups are defined in `src/data/courses.ts`; each model has a
+    `group:` line, and assembly parts are now ordered by part number within their group.
 - [x] **8. Cache models and drawings**
   - *Done Nov 8 2026:* `vercel.json` sends `Cache-Control: public, max-age=86400` for `/models/*` and
     `/drawings/*`, so browsers keep them for a day (they were `max-age=0`). A model replaced at the
@@ -201,6 +206,21 @@ load fast enough that a placeholder image isn't needed.*
   Left alone on purpose: the viewer's render loop keeps running while a paused model is on screen
   (cheap, and stopping it risks the damping and spin logic); code pages embed each source file
   twice (highlighted, and plain for the Copy button), a few KB per page.
+- *Nov 23 2026:* navigation pass, from a review of why CAD111 and CIS158 feel different (both use the
+  same templates; the gap is content: CIS158 pages have full write-ups, most CAD111 pages are a viewer
+  and a spec table). Shipped:
+  - **Courses menu in the header** in place of the "Coursework" link: CAD111 and CIS158 directly, plus
+    "All coursework" for the outline courses. Closes on Escape, outside click, or focus leaving; full
+    width under the header on phones.
+  - **Pinned section bar** on course pages (A Models · B Assemblies · C Drawings, with counts). It sticks
+    under the header and marks the section in view; on phones it scrolls sideways.
+  - **Model groups** (item 7).
+  - **Previous/Next stays inside a group** (or the section, for sections without groups), labelled
+    "Arbor Press · 4 of 8"; the last one returns to that group on the course page. Breadcrumbs gain the
+    group, and the footer sheet label reads `CAD111 · Arbor Press · 4 of 8`.
+  CIS158 isn't grouped: its 8 programs would make mostly one-item groups by unit.
+  Still to do from that review: one layout for every project page (facts box + the same write-up
+  headings), matching card covers for CIS158, and the CAD111 write-ups (31 pages).
 - *Held back (Nov 9 2026):* **three.js r187**: Context7's docs only go to r186, and three.js can
   break APIs in any release, so upgrade it with the r187 migration notes. **TypeScript 7**: a new
   major version; confirm `@astrojs/check` and Astro's tooling work with it before upgrading.

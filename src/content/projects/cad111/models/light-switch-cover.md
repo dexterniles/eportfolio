@@ -2,11 +2,12 @@
 title: Light Switch Cover
 course: cad111
 section: models
+group: reverse-engineering
 summary: A single-toggle light switch cover recreated from a McMaster-Carr switch plate, with my own sunburst decoration around the top screw.
 model: /models/light-switch-cover.glb
 cover: ./images/light-switch-cover.png
 coverAlt: 3D model of a light switch cover with a toggle slot, two screw holes, and a sunburst decoration around the top screw hole
-order: 29
+order: 1
 # Write-up still to add: Design intent, Features I used, What I learned (prompts in templates/project.md)
 ---
 

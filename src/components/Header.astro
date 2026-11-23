@@ -5,15 +5,13 @@ import ThemeToggle from './ThemeToggle.astro';
 import Logo from './Logo.astro';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-// "Coursework" covers every course and project page, so it's highlighted anywhere under a course.
-const onCoursePage = courses.some((c) => path === `/${c.slug}` || path.startsWith(`/${c.slug}/`));
-// "Home" is hidden on phones to make room; the logo links home there.
-const links = [
-  { href: '/', label: 'Home', active: path === '/', wide: true },
-  { href: '/portfolio', label: 'Portfolio', active: path === '/portfolio' },
-  { href: '/#coursework', label: 'Coursework', active: onCoursePage },
-  { href: '/#contact', label: 'Contact', active: false },
-];
+// "Courses" covers every course and project page, so it's highlighted anywhere under a course.
+const currentCourse = courses.find((c) => path === `/${c.slug}` || path.startsWith(`/${c.slug}/`));
+// Courses with project pages are listed by name in the menu; the outline courses are one link away.
+const projectCourses = courses.filter((c) => c.sections.length > 0);
+const outlineCount = courses.length - projectCourses.length;
+const linkClass =
+  'rounded-md px-1.5 py-2 font-mono text-xs uppercase tracking-wider text-muted transition hover:text-accent aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 sm:px-3 sm:tracking-widest';
 ---
 
 <header id="site-header" class="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
@@ -29,21 +27,96 @@ const links = [
     </a>
     <nav aria-label="Main">
       <ul class="flex items-center gap-0.5 sm:gap-2">
-        {
-          links.map((l) => (
-            <li class={l.wide ? "max-sm:hidden" : undefined}>
-              <a
-                href={l.href}
-                aria-current={l.active ? "page" : undefined}
-                class="rounded-md px-1.5 py-2 font-mono text-xs uppercase tracking-wider text-muted transition hover:text-accent aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 sm:px-3 sm:tracking-widest"
-              >
-                {l.label}
-              </a>
-            </li>
-          ))
-        }
+        <!-- "Home" is hidden on phones to make room; the logo links home there. -->
+        <li class="max-sm:hidden">
+          <a href="/" aria-current={path === '/' ? 'page' : undefined} class={linkClass}>Home</a>
+        </li>
+        <li>
+          <a href="/portfolio" aria-current={path === '/portfolio' ? 'page' : undefined} class={linkClass}>Portfolio</a>
+        </li>
+        <!-- On phones the menu is placed against the (sticky, so positioned) header, full width. -->
+        <li class="sm:relative" id="courses-nav">
+          <!-- Disclosure menu: a button that shows a list of links (not an ARIA menu, which suits apps). -->
+          <button
+            type="button"
+            aria-expanded="false"
+            aria-controls="courses-menu"
+            data-current={currentCourse ? '' : undefined}
+            class={`${linkClass} group inline-flex items-center gap-1 data-current:text-accent data-current:underline data-current:decoration-2 data-current:underline-offset-8`}
+          >
+            Courses
+            <svg class="size-3 transition group-aria-expanded:rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M2.5 4.5 6 8l3.5-3.5" />
+            </svg>
+          </button>
+          <div
+            id="courses-menu"
+            hidden
+            class="absolute top-full mt-2 overflow-hidden rounded-md border-2 border-line bg-surface shadow-[6px_6px_0_var(--accent)] max-sm:inset-x-4 sm:right-0 sm:w-76"
+          >
+            <ul class="divide-y divide-line">
+              {
+                projectCourses.map((c) => (
+                  <li>
+                    <a
+                      href={`/${c.slug}`}
+                      aria-current={currentCourse?.slug === c.slug ? 'page' : undefined}
+                      class="group block px-4 py-3 transition hover:bg-paper aria-[current=page]:bg-paper"
+                    >
+                      <span class="font-mono text-sm font-bold text-accent">{c.code}</span>
+                      <span class="mt-0.5 block text-sm font-semibold group-hover:text-accent">{c.title}</span>
+                      <span class="label mt-1 block">
+                        {c.term} · {c.software}
+                      </span>
+                    </a>
+                  </li>
+                ))
+              }
+              <li>
+                <a
+                  href="/#coursework"
+                  class="flex items-center justify-between px-4 py-3 font-mono text-xs uppercase tracking-widest text-muted transition hover:bg-paper hover:text-accent"
+                >
+                  All coursework{outlineCount > 0 && ` (+${outlineCount} courses)`}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <a href="/#contact" class={linkClass}>Contact</a>
+        </li>
         <li class="sm:ml-1"><ThemeToggle /></li>
       </ul>
     </nav>
   </div>
 </header>
+
+<script>
+  const wrap = document.getElementById('courses-nav')!;
+  const button = wrap.querySelector('button')!;
+  const menu = document.getElementById('courses-menu')!;
+
+  const setOpen = (open: boolean) => {
+    button.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+  };
+  const isOpen = () => button.getAttribute('aria-expanded') === 'true';
+  button.addEventListener('click', () => setOpen(!isOpen()));
+  // Close on Escape (back to the button), on a click elsewhere, or when focus leaves the menu.
+  wrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) {
+      setOpen(false);
+      button.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target as Node)) setOpen(false);
+  });
+  wrap.addEventListener('focusout', (e) => {
+    if (!wrap.contains(e.relatedTarget as Node | null)) setOpen(false);
+  });
+  // A page restored from the back/forward cache keeps its old state; start closed.
+  addEventListener('pageshow', () => setOpen(false));
+</script>
