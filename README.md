@@ -33,4 +33,4 @@ Personal engineering e-Portfolio for my coursework at Bristol Community College 
 
 - [HOW-TO-ADD-WORK.md](HOW-TO-ADD-WORK.md): adding models, drawings, and other work
 - [inbox/README.md](inbox/README.md): the drop-off folders for new files
-- [IMPROVEMENTS.md](IMPROVEMENTS.md): what's done, what's next
+- [IMPROVEMENTS.md](IMPROVEMENTS.md): what's still to do
