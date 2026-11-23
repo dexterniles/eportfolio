@@ -81,7 +81,7 @@ export const courses: Course[] = [
       },
       { slug: 'assemblies', title: 'Assemblies', blurb: 'Parts mated together into working mechanisms.' },
       { slug: 'drawings', title: 'Drawings', blurb: 'Dimensioned engineering drawings ready for the shop.' },
-      { slug: 'templates', title: 'Drawing Templates', blurb: 'My own sheet templates, with completed title and revision blocks, for A size, B size, and metric drawings.' },
+      { slug: 'templates', title: 'Drawing Templates', blurb: 'My own SolidWorks sheet templates, each with a title block, tolerance block, and revision block.' },
       { slug: 'design-project', title: 'Design Project', blurb: 'An original project taken from concept sketches to models, assemblies, and drawings.' },
     ],
   },

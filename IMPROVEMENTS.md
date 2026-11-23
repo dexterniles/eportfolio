@@ -46,17 +46,23 @@ load fast enough that a placeholder image isn't needed.*
         for parts that aren't Dexter's). Added A1002–A1004 and A1006–A1008 pages (Rack, Pinion,
         Faceplate, Handle, Collar, Handle Knob) to the Simple and Complex Features groups. A1001 (Frame)
         was supplied by the instructor: no page of its own, credited in the A1000 parts key
-  - [x] Drawing Templates section in CAD111 (hidden until templates are added)
+  - [x] Drawing Templates section in CAD111 (hidden until templates are added). *Nov 23:* the A- and
+        B-size IPS templates are up (`/cad111/templates/ips-a`, `ips-b`, PDFs in `public/drawings/`) and
+        added to Portfolio group D, Drawings & Templates. They're a newer title block than the one on the
+        three existing drawings (revision table, tolerance block, zones, and "MATERIAL" spelled right), so
+        those drawings don't link to them
   - [x] Light switch cover (SW28-W06-3DP03): recreated from a McMaster-Carr switch plate with
         Dexter's own sunburst decoration, and the oven rack (SW21W04SW03A, 3D sketch). New group
         **E · 3D Sketching & Reverse Engineering** (Nov 8)
-  - [ ] Waiting on exports: A/B/metric templates, other special models (configurations, design
-        tables). Received Nov 8: A1000 and C1000 STEP, light switch and oven rack STLs. (A ghost
+  - [ ] Waiting on exports: the metric template, other special models (configurations, design
+        tables). Received Nov 23: A and B IPS templates. Received Nov 8: A1000 and C1000 STEP, light switch and oven rack STLs. (A ghost
         figure, `SW23A-W05-3DP02.STL`, was uploaded by mistake for the oven rack and never went on
         the site; Dexter has since removed it from the inbox.)
   - [ ] Later (Dexter's call, Nov 8): drawings (CAD111-0002 to -0004, and the SolidWorks fixes:
         revision "A" plus a revision block, the "MATERAIL" typo, all-caps text, a section or detail
-        view on CAD111-0001, balloons on the C1000 exploded view)
+        view on CAD111-0001, balloons on the C1000 exploded view). *Nov 23:* the new IPS templates
+        already have the revision table and the corrected "MATERIAL"; the existing drawings would pick
+        those up if re-saved on the new template
   - Not doing: the V-series (V1001, V1002, V1004, V1005, V1009) and CS1001–CS1005 parts and the
     CS1000 / V1000 assemblies. Not built in class
   - [x] Part names: every title now uses the official CAD111 part number list, saved as
